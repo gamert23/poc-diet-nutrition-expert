@@ -2,9 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useLiff } from "@/components/LiffProvider";
-import { MEAL_COLORS } from "@/components/Pinto";
 import { useProfile } from "@/components/useProfile";
-import { BottomNav, Card, ErrorMessage, PageHeader, Spinner, buttonClass, secondaryButtonClass } from "@/components/ui";
+import { BottomNav, ErrorMessage, PageHeader, Spinner, buttonClass, secondaryButtonClass } from "@/components/ui";
 import { formatThaiDate } from "@/lib/format";
 import { MEAL_TYPE_LABELS, type MealPlan } from "@/lib/types";
 
@@ -62,7 +61,7 @@ export default function PlannerPage() {
         }`}
       />
 
-      <div className="mb-4 grid grid-cols-2 gap-3">
+      <div className="mb-8 grid grid-cols-2 gap-3">
         <button type="button" className={buttonClass} onClick={() => generate(1)} disabled={generatingDays !== null}>
           {generatingDays === 1 ? "กำลังจัด..." : "จัดเมนูวันนี้"}
         </button>
@@ -75,48 +74,45 @@ export default function PlannerPage() {
       {error && <ErrorMessage message={error} />}
 
       {plans.length === 0 ? (
-        <Card>
-          <p className="text-sm text-muted">ยังไม่มีแผนอาหาร เลือกจัดเมนูวันนี้หรือ 7 วันด้านบน</p>
-        </Card>
+        <p className="text-muted">ยังไม่มีแผนอาหาร เลือกจัดเมนูวันนี้หรือ 7 วันด้านบน</p>
       ) : (
         <div className="space-y-4">
           {groupByDate(plans).map(([date, dayPlans]) => (
-            <Card key={date}>
-              <div className="mb-2 flex items-baseline justify-between">
-                <h2 className="font-display text-lg font-medium">{formatThaiDate(date)}</h2>
-                <span className="text-xs text-muted">
-                  {sum(dayPlans, "estimated_calories")} kcal, ราว {sum(dayPlans, "estimated_cost_thb")} บาท
-                </span>
-              </div>
-              <ul className="space-y-1">
+            <section key={date} className="rounded-card bg-paper-2 px-5 pt-5 pb-2" aria-label={formatThaiDate(date)}>
+              <h2 className="text-xl">{formatThaiDate(date)}</h2>
+              <p className="mt-1 mb-2 text-sm text-muted tabular-nums">
+                {sum(dayPlans, "estimated_calories")} kcal, ราว {sum(dayPlans, "estimated_cost_thb")} บาท
+              </p>
+              <ul className="divide-y divide-rule">
                 {dayPlans.map((plan) => (
-                  <li key={plan.id} className="border-l-4 py-2 pl-3" style={{ borderLeftColor: MEAL_COLORS[plan.meal_type] }}>
+                  <li key={plan.id}>
                     <button
                       type="button"
-                      className="flex w-full items-center justify-between text-left"
+                      className="flex min-h-11 w-full items-center gap-3 py-3 text-left"
                       onClick={() => setExpanded(expanded === plan.id ? null : plan.id)}
                       aria-expanded={expanded === plan.id}
                     >
-                      <span>
-                        <span className="block text-xs text-muted">{MEAL_TYPE_LABELS[plan.meal_type]}</span>
-                        <span className="font-medium">{plan.recipe_name}</span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-sm text-muted">{MEAL_TYPE_LABELS[plan.meal_type]}</span>
+                        <span className="font-bold">{plan.recipe_name}</span>
                       </span>
-                      <span className="text-sm text-ink-soft">{Math.round(Number(plan.estimated_calories))} kcal</span>
+                      <span className="text-sm tabular-nums">{Math.round(Number(plan.estimated_calories))} kcal</span>
+                      <Chevron open={expanded === plan.id} />
                     </button>
                     {expanded === plan.id && (
-                      <div className="mt-2 space-y-2 rounded-xl bg-paper p-3 text-sm">
-                        <p className="text-xs text-muted">
+                      <div className="mb-3 space-y-3 rounded-control bg-paper-3 p-4">
+                        <p className="text-sm text-muted">
                           โปรตีน {Math.round(Number(plan.estimated_protein_g))} g, คาร์บ {Math.round(Number(plan.estimated_carbs_g))} g, ไขมัน{" "}
                           {Math.round(Number(plan.estimated_fat_g))} g
                         </p>
-                        <ul className="list-disc pl-5">
+                        <ul className="list-disc space-y-1 pl-5">
                           {plan.ingredients.map((ingredient, index) => (
                             <li key={index}>
                               {ingredient.name} {ingredient.amount}
                             </li>
                           ))}
                         </ul>
-                        <ol className="list-decimal pl-5">
+                        <ol className="list-decimal space-y-1 pl-5">
                           {(plan.instructions ?? []).map((step, index) => (
                             <li key={index}>{step}</li>
                           ))}
@@ -126,11 +122,28 @@ export default function PlannerPage() {
                   </li>
                 ))}
               </ul>
-            </Card>
+            </section>
           ))}
         </div>
       )}
       <BottomNav active="/planner" />
     </>
+  );
+}
+
+function Chevron({ open }: { open: boolean }) {
+  return (
+    <svg
+      viewBox="0 0 20 20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={`h-5 w-5 shrink-0 text-muted transition-transform duration-[var(--dur-short)] ease-out ${open ? "rotate-180" : ""}`}
+      aria-hidden="true"
+    >
+      <path d="M5 8l5 5 5-5" />
+    </svg>
   );
 }

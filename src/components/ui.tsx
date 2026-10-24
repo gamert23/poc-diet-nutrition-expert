@@ -3,23 +3,24 @@ import type { ReactNode } from "react";
 import { WARNING_MESSAGES } from "@/lib/safety";
 import type { WarningFlag } from "@/lib/types";
 
+// The one raised surface on a screen: the thing the user came for.
 export function Card({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return <section className={`rounded-[20px] border border-line bg-surface p-4 ${className}`}>{children}</section>;
+  return <section className={`rounded-card bg-card p-5 text-card-ink shadow-card ${className}`}>{children}</section>;
 }
 
 export function PageHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
-    <header className="mb-5">
-      <h1 className="font-display text-[1.75rem] leading-tight font-medium text-ink">{title}</h1>
-      {subtitle && <p className="mt-1 text-sm text-muted">{subtitle}</p>}
+    <header className="mb-8">
+      <h1 className="text-[2rem] leading-tight">{title}</h1>
+      {subtitle && <p className="mt-2 text-muted">{subtitle}</p>}
     </header>
   );
 }
 
 export function Spinner({ label = "กำลังโหลด..." }: { label?: string }) {
   return (
-    <div className="flex items-center justify-center gap-2 py-10 text-sm text-muted" role="status">
-      <span className="h-5 w-5 animate-spin rounded-full border-2 border-pandan border-t-transparent" />
+    <div className="flex items-center gap-3 py-10 text-muted" role="status">
+      <span className="keep-motion h-5 w-5 animate-spin rounded-full border-2 border-accent border-t-transparent" />
       {label}
     </div>
   );
@@ -27,7 +28,7 @@ export function Spinner({ label = "กำลังโหลด..." }: { label?: 
 
 export function ErrorMessage({ message }: { message: string }) {
   return (
-    <p className="rounded-xl bg-chili-wash p-3 text-sm text-chili" role="alert">
+    <p className="mb-4 rounded-control bg-error-wash px-4 py-3 text-error" role="alert">
       {message}
     </p>
   );
@@ -45,12 +46,14 @@ function WarningIcon() {
   );
 }
 
-export function WarningList({ flags }: { flags: readonly WarningFlag[] }) {
+// On the green the flag keeps its signal in ink and icon on a sunk pill; the pale
+// wash is only used on the warm-white card.
+export function WarningList({ flags, onGround = false }: { flags: readonly WarningFlag[]; onGround?: boolean }) {
   if (flags.length === 0) return null;
   return (
-    <ul className="space-y-1">
+    <ul className="flex flex-wrap gap-2">
       {flags.map((flag) => (
-        <li key={flag} className="flex items-center gap-2 rounded-lg bg-chili-wash px-3 py-2 text-sm font-medium text-chili">
+        <li key={flag} className={`flex items-center gap-1.5 rounded-pill px-3 py-1 text-sm font-bold ${onGround ? "bg-paper-3 text-error-on-ground" : "bg-error-wash text-error"}`}>
           <WarningIcon />
           {WARNING_MESSAGES[flag]}
         </li>
@@ -59,25 +62,29 @@ export function WarningList({ flags }: { flags: readonly WarningFlag[] }) {
   );
 }
 
+// Sits on the card: label above, figure below, columns parted by a rule.
 export function NutrientGrid({
   values,
 }: {
   values: { calories: number; protein_g: number; carbs_g: number; fat_g: number; sodium_mg?: number; sugar_g?: number };
 }) {
-  const items: [string, string][] = [
-    ["แคลอรี", `${Math.round(values.calories)} kcal`],
-    ["โปรตีน", `${Math.round(values.protein_g)} g`],
-    ["คาร์บ", `${Math.round(values.carbs_g)} g`],
-    ["ไขมัน", `${Math.round(values.fat_g)} g`],
+  const items: [string, string, string][] = [
+    ["แคลอรี", `${Math.round(values.calories)}`, "kcal"],
+    ["โปรตีน", `${Math.round(values.protein_g)}`, "g"],
+    ["คาร์บ", `${Math.round(values.carbs_g)}`, "g"],
+    ["ไขมัน", `${Math.round(values.fat_g)}`, "g"],
   ];
-  if (values.sodium_mg !== undefined) items.push(["โซเดียม", `${Math.round(values.sodium_mg)} mg`]);
-  if (values.sugar_g !== undefined) items.push(["น้ำตาล", `${Math.round(values.sugar_g)} g`]);
+  if (values.sodium_mg !== undefined) items.push(["โซเดียม", `${Math.round(values.sodium_mg)}`, "mg"]);
+  if (values.sugar_g !== undefined) items.push(["น้ำตาล", `${Math.round(values.sugar_g)}`, "g"]);
   return (
-    <dl className="grid grid-cols-3 gap-x-4 gap-y-3">
-      {items.map(([label, value]) => (
-        <div key={label} className="border-l-2 border-line pl-2.5">
-          <dt className="text-xs text-muted">{label}</dt>
-          <dd className="text-lg leading-snug font-semibold text-ink">{value}</dd>
+    <dl className="grid grid-cols-3 gap-y-4">
+      {items.map(([label, value, unit]) => (
+        <div key={label} className="border-l-2 border-card-rule pl-3">
+          <dt className="text-sm text-card-muted">{label}</dt>
+          <dd className="text-xl leading-snug font-bold tabular-nums">
+            {value}
+            <span className="ml-1 text-sm">{unit}</span>
+          </dd>
         </div>
       ))}
     </dl>
@@ -98,8 +105,10 @@ export function Chip({
       type="button"
       onClick={onClick}
       aria-pressed={selected}
-      className={`rounded-full border px-3 py-1.5 text-sm transition ${
-        selected ? "border-pandan-deep bg-pandan-deep text-white" : "border-line bg-surface text-ink-soft"
+      className={`min-h-11 rounded-pill px-4 py-2 transition-[background-color,box-shadow,translate] duration-[var(--dur-micro)] ease-out active:translate-y-px ${
+        selected
+          ? "bg-accent font-bold text-accent-ink"
+          : "bg-paper-2 text-ink hover:bg-paper-hover"
       }`}
     >
       {children}
@@ -107,12 +116,17 @@ export function Chip({
   );
 }
 
-export const buttonClass =
-  "inline-flex w-full items-center justify-center rounded-[14px] bg-pandan px-4 py-3 font-semibold text-white active:bg-pandan-deep disabled:opacity-50";
-export const secondaryButtonClass =
-  "inline-flex w-full items-center justify-center rounded-[14px] bg-pandan-wash px-4 py-3 font-semibold text-pandan-deep disabled:opacity-50";
+const controlBase =
+  "inline-flex min-h-11 w-full items-center justify-center rounded-control px-4 font-bold whitespace-nowrap transition-[background-color,border-color,translate] duration-[var(--dur-micro)] ease-out active:translate-y-px disabled:cursor-not-allowed disabled:opacity-55 disabled:active:translate-y-0";
+
+export const buttonClass = `${controlBase} bg-accent text-accent-ink hover:bg-accent-2 disabled:bg-paper-2 disabled:text-muted disabled:opacity-100`;
+export const secondaryButtonClass = `${controlBase} border-2 border-ink text-ink hover:bg-paper-2`;
+export const cardSecondaryButtonClass = `${controlBase} border-2 border-card-ink text-card-ink hover:bg-card-rule`;
+
 export const inputClass =
-  "w-full rounded-[12px] border border-line bg-surface px-3 py-2.5 text-base text-ink focus:border-pandan";
+  "min-h-11 w-full rounded-control border-2 border-muted bg-paper-3 px-3 text-base text-ink disabled:cursor-not-allowed disabled:opacity-55";
+export const cardInputClass =
+  "min-h-11 w-full rounded-control border-2 border-card-muted bg-card px-3 text-base text-card-ink disabled:cursor-not-allowed disabled:opacity-55";
 
 const NAV_ITEMS = [
   { href: "/", label: "หน้าหลัก" },
@@ -124,15 +138,15 @@ const NAV_ITEMS = [
 
 export function BottomNav({ active }: { active: string }) {
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-10 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)]">
-      <ul className="mx-auto flex max-w-md">
+    <nav className="fixed inset-x-0 bottom-0 z-[var(--z-sticky-nav)] bg-paper-3 pb-[env(safe-area-inset-bottom)]">
+      <ul className="mx-auto flex max-w-md gap-0.5 px-3 py-2">
         {NAV_ITEMS.map((item) => (
-          <li key={item.href} className="flex-1">
+          <li key={item.href} className="min-w-0 flex-1">
             <Link
               href={item.href}
               aria-current={active === item.href ? "page" : undefined}
-              className={`block border-t-2 py-3 text-center text-xs ${
-                active === item.href ? "border-pandan font-semibold text-pandan" : "border-transparent text-muted"
+              className={`flex min-h-11 items-center justify-center rounded-pill px-1 text-[0.8125rem] whitespace-nowrap transition-colors duration-[var(--dur-micro)] ${
+                active === item.href ? "bg-paper-2 font-bold text-ink" : "text-muted hover:text-ink"
               }`}
             >
               {item.label}

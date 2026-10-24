@@ -4,8 +4,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useLiff } from "@/components/LiffProvider";
 import { PhotoPicker } from "@/components/PhotoPicker";
+import { SheetSelect } from "@/components/SheetSelect";
 import { useProfile } from "@/components/useProfile";
-import { BottomNav, Card, ErrorMessage, NutrientGrid, PageHeader, Spinner, WarningList, buttonClass, inputClass } from "@/components/ui";
+import { BottomNav, Card, ErrorMessage, NutrientGrid, PageHeader, Spinner, WarningList, buttonClass, cardInputClass } from "@/components/ui";
 import { compressImage, imageFormData } from "@/lib/image-client";
 import { suggestMealType } from "@/lib/meal-time";
 import { MEAL_TYPES, MEAL_TYPE_LABELS, type MealType, type NutrientValues, type WarningFlag } from "@/lib/types";
@@ -79,50 +80,46 @@ export default function ScanPage() {
   return (
     <>
       <PageHeader title="AI สแกนอาหาร" subtitle="ถ่ายภาพอาหาร แล้วให้ AI ประเมินแคลอรีและสารอาหาร" />
-      <Card className="mb-4">
+      <div className="mb-6">
         <PhotoPicker label={result ? "ถ่ายภาพใหม่" : "ถ่ายภาพ / เลือกรูป"} onSelect={analyze} disabled={analyzing || saving} />
-      </Card>
+      </div>
 
       {analyzing && <Spinner label="AI กำลังวิเคราะห์อาหาร..." />}
       {error && <ErrorMessage message={error} />}
 
       {result && (
-        <Card className="space-y-4">
+        <Card className="space-y-5">
           <div>
-            <label className="mb-1 block text-sm font-medium text-ink-soft" htmlFor="food-name">
+            <label className="mb-1.5 block text-sm font-bold" htmlFor="food-name">
               ชื่ออาหาร
             </label>
-            <input id="food-name" className={inputClass} value={foodName} onChange={(event) => setFoodName(event.target.value)} />
+            <input id="food-name" className={cardInputClass} value={foodName} onChange={(event) => setFoodName(event.target.value)} />
             {result.analysis.portion_estimate && (
-              <p className="mt-1 text-xs text-muted">ปริมาณโดยประมาณ: {result.analysis.portion_estimate}</p>
+              <p className="mt-1.5 text-sm text-card-muted">ปริมาณโดยประมาณ: {result.analysis.portion_estimate}</p>
             )}
           </div>
           <NutrientGrid values={result.analysis} />
           <WarningList flags={result.warning_flags} />
           {result.analysis.health_advice && (
-            <p className="rounded-xl bg-pandan-wash p-3 text-sm text-pandan">{result.analysis.health_advice}</p>
+            <p className="border-l-4 border-meal-lunch pl-3">{result.analysis.health_advice}</p>
           )}
           <div>
-            <label className="mb-1 block text-sm font-medium text-ink-soft" htmlFor="meal-type">
+            <label className="mb-1.5 block text-sm font-bold" htmlFor="meal-type">
               มื้อ
             </label>
-            <select
+            <SheetSelect
               id="meal-type"
-              className={inputClass}
+              title="มื้อ"
               value={mealType}
-              onChange={(event) => setMealType(event.target.value as MealType)}
-            >
-              {MEAL_TYPES.map((type) => (
-                <option key={type} value={type}>
-                  {MEAL_TYPE_LABELS[type]}
-                </option>
-              ))}
-            </select>
+              options={MEAL_TYPES.map((type) => ({ value: type, label: MEAL_TYPE_LABELS[type] }))}
+              onChange={setMealType}
+              onCard
+            />
           </div>
           <button type="button" className={buttonClass} onClick={save} disabled={saving}>
             {saving ? "กำลังบันทึก..." : "บันทึกมื้อนี้"}
           </button>
-          <p className="text-xs text-muted">ค่าทางโภชนาการเป็นการประมาณจาก AI อาจคลาดเคลื่อนจากค่าจริง</p>
+          <p className="text-sm text-card-muted">ค่าทางโภชนาการเป็นการประมาณจาก AI อาจคลาดเคลื่อนจากค่าจริง</p>
         </Card>
       )}
       <BottomNav active="/scan" />

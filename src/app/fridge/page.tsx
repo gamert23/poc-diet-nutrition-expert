@@ -5,7 +5,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useLiff } from "@/components/LiffProvider";
 import { PhotoPicker } from "@/components/PhotoPicker";
 import { useProfile } from "@/components/useProfile";
-import { BottomNav, Card, Chip, ErrorMessage, NutrientGrid, PageHeader, Spinner, WarningList, buttonClass, inputClass, secondaryButtonClass } from "@/components/ui";
+import { BottomNav, Card, Chip, ErrorMessage, NutrientGrid, PageHeader, Spinner, WarningList, buttonClass, cardSecondaryButtonClass, inputClass, secondaryButtonClass } from "@/components/ui";
 import { compressImage, imageFormData } from "@/lib/image-client";
 import { suggestMealType } from "@/lib/meal-time";
 import { COOKING_EQUIPMENT, COOKING_EQUIPMENT_LABELS, type CookingEquipment, type NutrientValues, type WarningFlag } from "@/lib/types";
@@ -146,80 +146,85 @@ export default function FridgePage() {
     <>
       <PageHeader title="ตู้เย็น AI" subtitle="สร้างเมนูสุขภาพจากวัตถุดิบที่คุณมี" />
 
-      <Card className="mb-4">
-        <h2 className="mb-2 font-display text-lg font-medium">1. สแกนตู้เย็น</h2>
-        <PhotoPicker label="ถ่ายภาพตู้เย็น / วัตถุดิบ" onSelect={detect} disabled={detecting || generating} />
-        {detecting && <Spinner label="AI กำลังหาวัตถุดิบ..." />}
-      </Card>
+      <ol className="mb-8 divide-y-2 divide-rule">
+        <li className="space-y-4 pb-8">
+          <h2 className="text-xl">1. สแกนตู้เย็น</h2>
+          <PhotoPicker label="ถ่ายภาพตู้เย็น / วัตถุดิบ" onSelect={detect} disabled={detecting || generating} />
+          {detecting && <Spinner label="AI กำลังหาวัตถุดิบ..." />}
+        </li>
 
-      <Card className="mb-4 space-y-3">
-        <h2 className="font-display text-lg font-medium">2. เลือกวัตถุดิบ ({ingredients.length})</h2>
-        <div className="flex flex-wrap gap-2">
-          {chipOptions.map((name) => (
-            <Chip key={name} selected={ingredients.includes(name)} onClick={() => setIngredients(toggle(ingredients, name))}>
-              {name}
-            </Chip>
-          ))}
-        </div>
-        <form onSubmit={addCustom} className="flex gap-2">
-          <input
-            className={inputClass}
-            value={customIngredient}
-            onChange={(event) => setCustomIngredient(event.target.value)}
-            placeholder="พิมพ์วัตถุดิบเพิ่ม"
-          />
-          <button type="submit" className="shrink-0 rounded-xl bg-ink px-4 text-sm font-semibold text-white">
-            เพิ่ม
-          </button>
-        </form>
-      </Card>
+        <li className="space-y-4 py-8">
+          <h2 className="text-xl">
+            2. เลือกวัตถุดิบ <span className="font-body tabular-nums">({ingredients.length})</span>
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {chipOptions.map((name) => (
+              <Chip key={name} selected={ingredients.includes(name)} onClick={() => setIngredients(toggle(ingredients, name))}>
+                {name}
+              </Chip>
+            ))}
+          </div>
+          <form onSubmit={addCustom} className="flex gap-2">
+            <input
+              className={`${inputClass} min-w-0`}
+              value={customIngredient}
+              onChange={(event) => setCustomIngredient(event.target.value)}
+              placeholder="พิมพ์วัตถุดิบเพิ่ม"
+              aria-label="พิมพ์วัตถุดิบเพิ่ม"
+            />
+            <button type="submit" className={`${secondaryButtonClass} w-auto! shrink-0`}>
+              เพิ่ม
+            </button>
+          </form>
+        </li>
 
-      <Card className="mb-4 space-y-2">
-        <h2 className="font-display text-lg font-medium">3. อุปกรณ์ทำอาหาร</h2>
-        <div className="flex flex-wrap gap-2">
-          {COOKING_EQUIPMENT.map((item) => (
-            <Chip key={item} selected={equipment.includes(item)} onClick={() => setEquipment(toggle(equipment, item))}>
-              {COOKING_EQUIPMENT_LABELS[item]}
-            </Chip>
-          ))}
-        </div>
-      </Card>
+        <li className="space-y-4 pt-8">
+          <h2 className="text-xl">3. อุปกรณ์ทำอาหาร</h2>
+          <div className="flex flex-wrap gap-2">
+            {COOKING_EQUIPMENT.map((item) => (
+              <Chip key={item} selected={equipment.includes(item)} onClick={() => setEquipment(toggle(equipment, item))}>
+                {COOKING_EQUIPMENT_LABELS[item]}
+              </Chip>
+            ))}
+          </div>
+        </li>
+      </ol>
 
-      <button type="button" className={`${buttonClass} mb-4`} onClick={generate} disabled={ingredients.length === 0 || generating}>
+      <button type="button" className={`${buttonClass} mb-6`} onClick={generate} disabled={ingredients.length === 0 || generating}>
         {generating ? "AI กำลังคิดเมนู..." : "สร้างเมนู"}
       </button>
 
       {error && <ErrorMessage message={error} />}
 
       {result && (
-        <Card className="space-y-4">
+        <Card className="space-y-5">
           <div>
-            <h2 className="font-display text-xl font-medium">{result.recipe.recipe_name}</h2>
-            <p className="text-xs text-muted">
+            <h2 className="text-2xl">{result.recipe.recipe_name}</h2>
+            <p className="mt-1 text-sm text-card-muted">
               ใช้เวลา {Math.round(result.recipe.cooking_time_mins)} นาที, วันนี้เหลือ {result.remaining_calories} kcal
             </p>
           </div>
           <NutrientGrid values={result.recipe} />
           <WarningList flags={result.warning_flags} />
           <div>
-            <h3 className="mb-1 text-sm font-semibold">วัตถุดิบที่ใช้</h3>
-            <p className="text-sm text-ink-soft">{result.recipe.used_ingredients.join(", ")}</p>
+            <h3 className="mb-1">วัตถุดิบที่ใช้</h3>
+            <p>{result.recipe.used_ingredients.join(", ")}</p>
             {result.recipe.missing_optional_ingredients.length > 0 && (
-              <p className="mt-1 text-xs text-muted">เพิ่มได้ถ้ามี: {result.recipe.missing_optional_ingredients.join(", ")}</p>
+              <p className="mt-1 text-sm text-card-muted">เพิ่มได้ถ้ามี: {result.recipe.missing_optional_ingredients.join(", ")}</p>
             )}
           </div>
           <div>
-            <h3 className="mb-1 text-sm font-semibold">วิธีทำ</h3>
-            <ol className="list-decimal space-y-1 pl-5 text-sm text-ink-soft">
+            <h3 className="mb-1">วิธีทำ</h3>
+            <ol className="list-decimal space-y-1.5 pl-5 marker:font-bold">
               {result.recipe.instructions.map((step, index) => (
                 <li key={index}>{step}</li>
               ))}
             </ol>
           </div>
           {result.recipe.medical_safety_note && (
-            <p className="rounded-xl bg-turmeric-wash p-3 text-sm text-tamarind">{result.recipe.medical_safety_note}</p>
+            <p className="border-l-4 border-meal-breakfast pl-3">{result.recipe.medical_safety_note}</p>
           )}
-          <button type="button" className={secondaryButtonClass} onClick={logRecipe} disabled={saving}>
+          <button type="button" className={cardSecondaryButtonClass} onClick={logRecipe} disabled={saving}>
             {saving ? "กำลังบันทึก..." : "ทำเมนูนี้แล้ว บันทึกเป็นมื้ออาหาร"}
           </button>
         </Card>

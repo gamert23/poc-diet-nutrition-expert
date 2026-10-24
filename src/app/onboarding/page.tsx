@@ -1,8 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useId, useState, type FormEvent } from "react";
 import { useLiff } from "@/components/LiffProvider";
+import { SheetSelect } from "@/components/SheetSelect";
 import { useProfile } from "@/components/useProfile";
 import { BottomNav, Card, Chip, ErrorMessage, PageHeader, Spinner, buttonClass, inputClass } from "@/components/ui";
 import {
@@ -118,15 +119,21 @@ export default function OnboardingPage() {
     return (
       <>
         <PageHeader title="เป้าหมายของคุณ" subtitle="คำนวณด้วยสูตร Mifflin-St Jeor" />
-        <Card className="space-y-2">
-          <Row label="BMR (พลังงานพื้นฐาน)" value={`${Math.round(Number(result.bmr))} kcal`} />
-          <Row label="TDEE (พลังงานที่ใช้ต่อวัน)" value={`${Math.round(Number(result.tdee))} kcal`} />
-          <Row label="เป้าหมายแคลอรีต่อวัน" value={`${Math.round(Number(result.target_calories))} kcal`} strong />
-          <Row label="โปรตีน (30%)" value={`${Number(result.protein_target_g)} g`} />
-          <Row label="คาร์บ (45%)" value={`${Number(result.carbs_target_g)} g`} />
-          <Row label="ไขมัน (25%)" value={`${Number(result.fat_target_g)} g`} />
+        <Card>
+          <p className="text-card-muted">เป้าหมายแคลอรีต่อวัน</p>
+          <p className="text-[4rem] leading-none font-bold tabular-nums">
+            {Math.round(Number(result.target_calories)).toLocaleString("th-TH")}
+            <span className="ml-2 text-xl">kcal</span>
+          </p>
+          <dl className="mt-5 divide-y divide-card-rule border-t-2 border-card-rule">
+            <Row label="BMR (พลังงานพื้นฐาน)" value={`${Math.round(Number(result.bmr))} kcal`} />
+            <Row label="TDEE (พลังงานที่ใช้ต่อวัน)" value={`${Math.round(Number(result.tdee))} kcal`} />
+            <Row label="โปรตีน (30%)" value={`${Number(result.protein_target_g)} g`} />
+            <Row label="คาร์บ (45%)" value={`${Number(result.carbs_target_g)} g`} />
+            <Row label="ไขมัน (25%)" value={`${Number(result.fat_target_g)} g`} />
+          </dl>
         </Card>
-        <button type="button" className={`${buttonClass} mt-4`} onClick={() => router.push("/")}>
+        <button type="button" className={`${buttonClass} mt-6`} onClick={() => router.push("/")}>
           ไปที่หน้าหลัก
         </button>
       </>
@@ -139,109 +146,121 @@ export default function OnboardingPage() {
         title={profile ? "แก้ไขโปรไฟล์สุขภาพ" : "เริ่มต้นใช้งาน"}
         subtitle="ข้อมูลนี้ใช้คำนวณเป้าหมายแคลอรีและคำเตือนด้านสุขภาพ"
       />
-      <form onSubmit={submit} className="space-y-4">
-        <Card className="space-y-3">
-          <Field label="เพศ">
-            <div className="flex gap-2">
-              <Chip selected={form.gender === "female"} onClick={() => update("gender", "female")}>
-                หญิง
-              </Chip>
-              <Chip selected={form.gender === "male"} onClick={() => update("gender", "male")}>
-                ชาย
-              </Chip>
-            </div>
-          </Field>
-          <div className="grid grid-cols-2 gap-3">
-            <NumberField label="อายุ (ปี)" value={form.age} onChange={(value) => update("age", value)} min={13} max={120} />
-            <NumberField label="ส่วนสูง (ซม.)" value={form.height_cm} onChange={(value) => update("height_cm", value)} min={100} max={250} />
-            <NumberField
-              label="น้ำหนักปัจจุบัน (กก.)"
-              value={form.current_weight_kg}
-              onChange={(value) => update("current_weight_kg", value)}
-              min={25}
-              max={350}
-              step="0.1"
-            />
-            <NumberField
-              label="น้ำหนักเป้าหมาย (กก.)"
-              value={form.target_weight_kg}
-              onChange={(value) => update("target_weight_kg", value)}
-              min={25}
-              max={350}
-              step="0.1"
-            />
-          </div>
-          <Field label="ระดับกิจกรรม">
-            <select
-              className={inputClass}
-              value={form.activity_level}
-              onChange={(event) => update("activity_level", event.target.value as ActivityLevel)}
-            >
-              {ACTIVITY_LEVELS.map((level) => (
-                <option key={level} value={level}>
-                  {ACTIVITY_LEVEL_LABELS[level]}
-                </option>
-              ))}
-            </select>
-          </Field>
-        </Card>
-
-        <Card className="space-y-3">
-          <Field label="โรคประจำตัว">
-            <div className="flex flex-wrap gap-2">
-              {MEDICAL_CONDITIONS.map((condition) => (
-                <Chip
-                  key={condition}
-                  selected={form.medical_conditions.includes(condition)}
-                  onClick={() => update("medical_conditions", toggle(form.medical_conditions, condition))}
+      <form onSubmit={submit}>
+        <div className="divide-y-2 divide-rule">
+          <fieldset className="space-y-5 pb-8">
+            <FieldGroup label="เพศ">
+              <div className="grid grid-cols-2 gap-1 rounded-control bg-paper-3 p-1">
+                <button
+                  type="button"
+                  aria-pressed={form.gender === "female"}
+                  onClick={() => update("gender", "female")}
+                  className={segmentClass(form.gender === "female")}
                 >
-                  {MEDICAL_CONDITION_LABELS[condition]}
-                </Chip>
-              ))}
-            </div>
-          </Field>
-          <Field label="ประวัติแพ้อาหาร (คั่นด้วยจุลภาค)">
-            <input
-              className={inputClass}
-              value={form.allergies}
-              onChange={(event) => update("allergies", event.target.value)}
-              placeholder="เช่น กุ้ง, ถั่วลิสง"
-            />
-          </Field>
-        </Card>
-
-        <Card className="space-y-3">
-          <Field label="อุปกรณ์ทำอาหารที่มี">
-            <div className="flex flex-wrap gap-2">
-              {COOKING_EQUIPMENT.map((item) => (
-                <Chip
-                  key={item}
-                  selected={form.cooking_equipment.includes(item)}
-                  onClick={() => update("cooking_equipment", toggle(form.cooking_equipment, item))}
+                  หญิง
+                </button>
+                <button
+                  type="button"
+                  aria-pressed={form.gender === "male"}
+                  onClick={() => update("gender", "male")}
+                  className={segmentClass(form.gender === "male")}
                 >
-                  {COOKING_EQUIPMENT_LABELS[item]}
-                </Chip>
-              ))}
+                  ชาย
+                </button>
+              </div>
+            </FieldGroup>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-5">
+              <NumberField label="อายุ (ปี)" value={form.age} onChange={(value) => update("age", value)} min={13} max={120} />
+              <NumberField label="ส่วนสูง (ซม.)" value={form.height_cm} onChange={(value) => update("height_cm", value)} min={100} max={250} />
+              <NumberField
+                label="น้ำหนักปัจจุบัน (กก.)"
+                value={form.current_weight_kg}
+                onChange={(value) => update("current_weight_kg", value)}
+                min={25}
+                max={350}
+                step="0.1"
+              />
+              <NumberField
+                label="น้ำหนักเป้าหมาย (กก.)"
+                value={form.target_weight_kg}
+                onChange={(value) => update("target_weight_kg", value)}
+                min={25}
+                max={350}
+                step="0.1"
+              />
             </div>
-          </Field>
-          <NumberField
-            label="งบค่าอาหารต่อวัน (บาท, ไม่บังคับ)"
-            value={form.daily_budget_thb}
-            onChange={(value) => update("daily_budget_thb", value)}
-            min={0}
-            max={100000}
-            required={false}
-          />
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={form.daily_summary_enabled}
-              onChange={(event) => update("daily_summary_enabled", event.target.checked)}
-              className="h-4 w-4 accent-pandan"
+            <div>
+              <label htmlFor="activity-level" className="mb-1.5 block text-sm font-bold">
+                ระดับกิจกรรม
+              </label>
+              <SheetSelect
+                id="activity-level"
+                title="ระดับกิจกรรม"
+                value={form.activity_level}
+                options={ACTIVITY_LEVELS.map((level) => ({ value: level, label: ACTIVITY_LEVEL_LABELS[level] }))}
+                onChange={(level) => update("activity_level", level)}
+              />
+            </div>
+          </fieldset>
+
+          <fieldset className="space-y-5 py-8">
+            <FieldGroup label="โรคประจำตัว">
+              <div className="flex flex-wrap gap-2">
+                {MEDICAL_CONDITIONS.map((condition) => (
+                  <Chip
+                    key={condition}
+                    selected={form.medical_conditions.includes(condition)}
+                    onClick={() => update("medical_conditions", toggle(form.medical_conditions, condition))}
+                  >
+                    {MEDICAL_CONDITION_LABELS[condition]}
+                  </Chip>
+                ))}
+              </div>
+            </FieldGroup>
+            <label className="block">
+              <FieldLabel>ประวัติแพ้อาหาร (คั่นด้วยจุลภาค)</FieldLabel>
+              <input
+                className={inputClass}
+                value={form.allergies}
+                onChange={(event) => update("allergies", event.target.value)}
+                placeholder="เช่น กุ้ง, ถั่วลิสง"
+              />
+            </label>
+          </fieldset>
+
+          <fieldset className="space-y-5 py-8">
+            <FieldGroup label="อุปกรณ์ทำอาหารที่มี">
+              <div className="flex flex-wrap gap-2">
+                {COOKING_EQUIPMENT.map((item) => (
+                  <Chip
+                    key={item}
+                    selected={form.cooking_equipment.includes(item)}
+                    onClick={() => update("cooking_equipment", toggle(form.cooking_equipment, item))}
+                  >
+                    {COOKING_EQUIPMENT_LABELS[item]}
+                  </Chip>
+                ))}
+              </div>
+            </FieldGroup>
+            <NumberField
+              label="งบค่าอาหารต่อวัน (บาท, ไม่บังคับ)"
+              value={form.daily_budget_thb}
+              onChange={(value) => update("daily_budget_thb", value)}
+              min={0}
+              max={100000}
+              required={false}
             />
-            รับสรุปการกินรายวันทาง LINE เวลา 20:00 น.
-          </label>
-        </Card>
+            <label className="flex min-h-11 items-center gap-3">
+              <input
+                type="checkbox"
+                checked={form.daily_summary_enabled}
+                onChange={(event) => update("daily_summary_enabled", event.target.checked)}
+                className="h-5 w-5 shrink-0 accent-accent"
+              />
+              รับสรุปการกินรายวันทาง LINE เวลา 20:00 น.
+            </label>
+          </fieldset>
+        </div>
 
         {error && <ErrorMessage message={error} />}
         <button type="submit" className={buttonClass} disabled={saving}>
@@ -253,10 +272,23 @@ export default function OnboardingPage() {
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function segmentClass(selected: boolean): string {
+  return `min-h-11 rounded-[12px] transition-[background-color,translate] duration-[var(--dur-micro)] ease-out active:translate-y-px ${
+    selected ? "bg-accent font-bold text-accent-ink" : "text-muted hover:text-ink"
+  }`;
+}
+
+function FieldLabel({ children }: { children: React.ReactNode }) {
+  return <span className="mb-1.5 block text-sm font-bold">{children}</span>;
+}
+
+function FieldGroup({ label, children }: { label: string; children: React.ReactNode }) {
+  const id = useId();
   return (
-    <div>
-      <span className="mb-1 block text-sm font-medium text-ink-soft">{label}</span>
+    <div role="group" aria-labelledby={id}>
+      <span id={id} className="mb-1.5 block text-sm font-bold">
+        {label}
+      </span>
       {children}
     </div>
   );
@@ -281,11 +313,11 @@ function NumberField({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-sm font-medium text-ink-soft">{label}</span>
+      <FieldLabel>{label}</FieldLabel>
       <input
         type="number"
         inputMode="decimal"
-        className={inputClass}
+        className={`${inputClass} tabular-nums`}
         value={value}
         min={min}
         max={max}
@@ -297,11 +329,11 @@ function NumberField({
   );
 }
 
-function Row({ label, value, strong = false }: { label: string; value: string; strong?: boolean }) {
+function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between text-sm">
-      <span className="text-ink-soft">{label}</span>
-      <span className={strong ? "text-lg font-bold text-pandan" : "font-semibold"}>{value}</span>
+    <div className="flex items-baseline justify-between gap-4 py-2.5">
+      <dt className="text-card-muted">{label}</dt>
+      <dd className="font-bold tabular-nums">{value}</dd>
     </div>
   );
 }

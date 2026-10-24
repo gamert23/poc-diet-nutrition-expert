@@ -2,10 +2,10 @@ import { progressPercent } from "@/lib/flex";
 import { MEAL_TYPES, MEAL_TYPE_LABELS, type MealType } from "@/lib/types";
 
 export const MEAL_COLORS: Record<MealType, string> = {
-  breakfast: "var(--color-turmeric)",
-  lunch: "var(--color-pandan)",
-  dinner: "var(--color-pea)",
-  snack: "var(--color-tamarind)",
+  breakfast: "var(--color-meal-breakfast)",
+  lunch: "var(--color-meal-lunch)",
+  dinner: "var(--color-meal-dinner)",
+  snack: "var(--color-meal-snack)",
 };
 
 const BODY_TOP = 50;
@@ -51,12 +51,12 @@ export function PintoStack({ tiers, target }: { tiers: PintoTier[]; target: numb
       <path
         d="M16 210 V22 Q16 10 28 10 H92 Q104 10 104 22 V210"
         fill="none"
-        stroke="var(--color-ink-soft)"
+        stroke="var(--color-card-ink)"
         strokeWidth="3"
         strokeLinecap="round"
       />
-      <rect x="22" y="34" width="76" height="12" rx="6" fill="var(--color-ink-soft)" />
-      <rect x="54" y="28" width="12" height="8" rx="3" fill="var(--color-ink-soft)" />
+      <rect x="22" y="34" width="76" height="12" rx="6" fill="var(--color-card-ink)" />
+      <rect x="54" y="28" width="12" height="8" rx="3" fill="var(--color-card-ink)" />
 
       {stackTop > BODY_TOP + 2 && (
         <rect
@@ -65,17 +65,17 @@ export function PintoStack({ tiers, target }: { tiers: PintoTier[]; target: numb
           width="72"
           height={stackTop - BODY_TOP - 1}
           rx="5"
-          fill="var(--color-surface)"
-          stroke="var(--color-line)"
+          fill="none"
+          stroke="var(--color-card-muted)"
           strokeWidth="1.5"
           strokeDasharray="4 4"
         />
       )}
 
-      {rects.map((tier, index) => (
-        <g key={tier.mealType} className="pinto-tier" style={{ animationDelay: `${index * 90}ms` }}>
+      {rects.map((tier) => (
+        <g key={tier.mealType}>
           <rect x="24" y={tier.y} width="72" height={tier.height} rx="5" fill={MEAL_COLORS[tier.mealType]} />
-          <rect x="24" y={tier.y} width="72" height={Math.min(3, tier.height)} rx="1.5" fill="#ffffff" opacity="0.3" />
+          <rect x="24" y={tier.y} width="72" height={Math.min(3, tier.height)} rx="1.5" fill="var(--color-card)" opacity="0.3" />
         </g>
       ))}
 
@@ -85,7 +85,7 @@ export function PintoStack({ tiers, target }: { tiers: PintoTier[]; target: numb
           x2="102"
           y1={targetY}
           y2={targetY}
-          stroke="var(--color-chili)"
+          stroke="var(--color-error)"
           strokeWidth="2"
           strokeDasharray="5 3"
         />
@@ -101,27 +101,29 @@ export function MealLegend({ tiers }: { tiers: PintoTier[] }) {
       {[...tiers].reverse().map((tier) => (
         <li key={tier.mealType} className="flex items-center gap-2">
           <span className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: MEAL_COLORS[tier.mealType] }} aria-hidden="true" />
-          <span className="text-ink-soft">{MEAL_TYPE_LABELS[tier.mealType]}</span>
-          <span className="ml-auto tabular-nums text-muted">{Math.round(tier.calories).toLocaleString("th-TH")}</span>
+          <span>{MEAL_TYPE_LABELS[tier.mealType]}</span>
+          <span className="ml-auto font-bold tabular-nums">{Math.round(tier.calories).toLocaleString("th-TH")}</span>
         </li>
       ))}
     </ul>
   );
 }
 
-export function MacroBar({ label, value, target, color }: { label: string; value: number; target: number; color: string }) {
+// Sits on the card. One fill colour for all three: the label names the macro, and
+// the error colour is kept for going over.
+export function MacroBar({ label, value, target }: { label: string; value: number; target: number }) {
   const percent = progressPercent(value, target);
   const over = percent > 100;
   return (
     <div className="grid grid-cols-[3.5rem_1fr_auto] items-center gap-3">
-      <span className="text-sm text-ink-soft">{label}</span>
-      <div className="h-1.5 rounded-full bg-line">
+      <span className="text-sm">{label}</span>
+      <div className="h-2 rounded-pill bg-track">
         <div
-          className="h-1.5 rounded-full"
-          style={{ width: `${Math.min(percent, 100)}%`, backgroundColor: over ? "var(--color-chili)" : color }}
+          className={`h-2 rounded-pill ${over ? "bg-error" : "bg-meal-lunch"}`}
+          style={{ width: `${Math.min(percent, 100)}%` }}
         />
       </div>
-      <span className={`text-right text-xs tabular-nums ${over ? "font-semibold text-chili" : "text-muted"}`}>
+      <span className={`text-right text-sm tabular-nums ${over ? "font-bold text-error" : "text-card-muted"}`}>
         {Math.round(value)}/{Math.round(target)} g
       </span>
     </div>

@@ -1,61 +1,81 @@
+/* Hallmark · shape: app screen · genre: playful · theme: Squeeze (deal 2/3, seed line-mini-app-where-d3f6·dc7a2deb·2026-10-24·r0) · redesign: full
+ * nav: kept bottom tab bar, five destinations · signature: the day's pinto on the one warm-white card · states: loading, empty, error, full
+ * axes: light/geometric-sans/warm (face by request: Kanit throughout) · posture: committed, pastel mint ground by request · contrast: pass · v2.0.0 */
+/* Hallmark · pre-emit critique: P4 H4 E4 S5 R4 V4 · weakest: P, a calorie tracker argues little; the pinto says the day is a container you fill, not a score you lose */
+/* Hallmark · waive 39b · button.flex photo tile at 192px on /scan and /fridge · the camera tile is the scan screen's one job and must be a thumb-sized target on a phone */
+/* Hallmark · finish-review: subagent · 7 findings · 5 resolved 1 partial (nav end pills sit 12px from the edge, not 16px) 1 declined (optional planner figure, new content for the owner) · gap: none */
+/* Hallmark · dropped setMealType(event.target, activity_level, select · the two native selects became bottom sheets (SheetSelect) whose radios call the same setMealType and update("activity_level") */
 @import "tailwindcss";
+@import "./tokens.css";
+@import "./base.css" layer(base);
 
-@theme {
-  --color-paper: #f3f5ef;
-  --color-surface: #ffffff;
-  --color-line: #dfe5da;
-  --color-ink: #1f2a22;
-  --color-ink-soft: #3d4a40;
-  --color-muted: #5c6b60;
-  --color-pandan: #2f6b3a;
-  --color-pandan-deep: #22502b;
-  --color-pandan-wash: #e3eee0;
-  --color-turmeric: #d9961e;
-  --color-turmeric-wash: #f8edd6;
-  --color-pea: #3657a6;
-  --color-tamarind: #8a5a3b;
-  --color-chili: #b8352b;
-  --color-chili-wash: #f9e4e1;
-
-  --font-display: var(--font-heading), "Thonburi", sans-serif;
-  --font-sans: var(--font-body), "Thonburi", system-ui, sans-serif;
-}
-
-:root {
-  color-scheme: light;
+@theme static {
+  --color-paper-hover: oklch(88% 0.055 155);
+  --color-card-muted: oklch(46% 0.035 160);
+  --color-card-rule: oklch(89% 0.015 100);
+  --color-track: oklch(93% 0.02 120);
+  --color-error-wash: oklch(94% 0.04 27);
+  --color-error-on-ground: oklch(50% 0.18 27);
+  --color-scrim: oklch(30% 0.04 160 / 0.35);
+  --color-meal-breakfast: oklch(82% 0.11 82);
+  --color-meal-lunch: oklch(72% 0.1 155);
+  --color-meal-dinner: oklch(72% 0.09 265);
+  --color-meal-snack: oklch(75% 0.075 45);
 }
 
 body {
-  background: var(--color-paper);
-  color: var(--color-ink);
-  font-family: var(--font-sans);
-  line-height: 1.6;
-  -webkit-tap-highlight-color: transparent;
+  font-weight: 400;
 }
 
-:focus-visible {
-  outline: 2px solid var(--color-pandan);
-  outline-offset: 2px;
+input::placeholder {
+  color: var(--color-muted);
+  opacity: 0.75;
 }
 
-/* The pinto tiers stack once on load: the dashboard's single motion moment. */
-@keyframes tier-stack {
-  from {
-    transform: translateY(-24px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+/* Bottom sheet: slides up over --dur-long, leaves at about 65% of that. The base
+   reduced-motion rule cuts both to an instant change. */
+.sheet {
+  width: 100%;
+  max-width: none;
+  max-height: none;
+  margin: auto 0 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
 }
 
-.pinto-tier {
-  animation: tier-stack 420ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+.sheet::backdrop {
+  background: var(--color-scrim);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .pinto-tier {
-    animation: none;
-  }
+.sheet[open] {
+  animation: sheet-in var(--dur-long) var(--ease-out);
+}
+
+.sheet[open]::backdrop {
+  animation: sheet-fade-in var(--dur-long) var(--ease-out);
+}
+
+.sheet.sheet-closing {
+  animation: sheet-out 270ms var(--ease-in) forwards;
+}
+
+.sheet.sheet-closing::backdrop {
+  animation: sheet-fade-out 270ms var(--ease-in) forwards;
+}
+
+@keyframes sheet-in {
+  from { transform: translateY(100%); }
+}
+
+@keyframes sheet-out {
+  to { transform: translateY(100%); }
+}
+
+@keyframes sheet-fade-in {
+  from { opacity: 0; }
+}
+
+@keyframes sheet-fade-out {
+  to { opacity: 0; }
 }
