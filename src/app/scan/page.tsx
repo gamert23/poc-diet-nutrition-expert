@@ -75,7 +75,7 @@ export default function ScanPage() {
 
   const fatalError = liffError ?? profileError;
   if (fatalError) return <ErrorMessage message={fatalError} />;
-  if (loading) return <Spinner />;
+  if (loading) return <Spinner fullPage />;
 
   return (
     <>

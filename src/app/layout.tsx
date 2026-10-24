@@ -12,7 +12,7 @@ const kanit = Kanit({
 });
 
 export const metadata: Metadata = {
-  title: "AI Nutritionist",
+  title: "กินดี AI",
   description: "ผู้ช่วยควบคุมอาหารและโภชนาการส่วนบุคคลบน LINE",
 };
 

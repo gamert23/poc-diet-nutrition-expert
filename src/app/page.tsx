@@ -44,7 +44,7 @@ export default function DashboardPage() {
 
   const fatalError = liffError ?? profileError;
   if (fatalError) return <ErrorMessage message={fatalError} />;
-  if (loading || !daily) return <Spinner />;
+  if (loading || !daily) return <Spinner fullPage />;
 
   const remaining = Math.round(daily.targets.calories - daily.totals.calories);
   const over = remaining < 0;

@@ -55,7 +55,7 @@ export default function PlannerPage() {
 
   const fatalError = liffError ?? profileError;
   if (fatalError) return <ErrorMessage message={fatalError} />;
-  if (loading || !profile || plans === null) return <Spinner />;
+  if (loading || !profile || plans === null) return <Spinner fullPage />;
 
   return (
     <>

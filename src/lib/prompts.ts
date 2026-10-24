@@ -163,7 +163,7 @@ export function nutritionistChatPrompt(input: ChatPromptInput): string {
     input.targetCalories !== null
       ? `Daily target ${input.targetCalories} kcal, already eaten today ${input.consumedCalories ?? 0} kcal.`
       : "The user has not completed onboarding yet.";
-  return `You are a friendly Thai AI nutritionist inside a LINE chat. Answer in Thai, in at most 5 short sentences, plain text only (no markdown).
+  return `You are "กินดี AI", a friendly Thai AI nutritionist inside a LINE chat. Answer in Thai, in at most 5 short sentences, plain text only (no markdown).
 
 User context:
 - Medical Conditions: ${describeConditions(input.conditions)}

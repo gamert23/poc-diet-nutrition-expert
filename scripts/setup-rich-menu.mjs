@@ -35,7 +35,7 @@ function pintoLayout() {
       { label: "AI Scanner", bounds: { x: 0, y: 0, width: half, height }, route: "/scan" },
       { label: "Dashboard", bounds: tier(0), route: "/" },
       { label: "Fridge AI", bounds: tier(1), route: "/fridge" },
-      { label: "AI Chat", bounds: tier(2), message: "สวัสดีนักโภชนาการ AI" },
+      { label: "AI Chat", bounds: tier(2), message: "สวัสดี กินดี AI" },
     ],
   };
 }

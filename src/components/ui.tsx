@@ -17,10 +17,23 @@ export function PageHeader({ title, subtitle }: { title: string; subtitle?: stri
   );
 }
 
-export function Spinner({ label = "กำลังโหลด..." }: { label?: string }) {
+// fullPage centres the spinner in the viewport while a screen's data loads;
+// otherwise it sits centred in its own row inside the page.
+export function Spinner({ label = "กำลังโหลด...", fullPage = false }: { label?: string; fullPage?: boolean }) {
   return (
-    <div className="flex items-center gap-3 py-10 text-muted" role="status">
-      <span className="keep-motion h-5 w-5 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+    <div
+      className={
+        fullPage
+          ? "fixed inset-0 flex flex-col items-center justify-center gap-4 text-muted"
+          : "flex items-center justify-center gap-3 py-10 text-center text-muted"
+      }
+      role="status"
+    >
+      <span
+        className={`keep-motion shrink-0 animate-spin rounded-full border-accent border-t-transparent ${
+          fullPage ? "h-10 w-10 border-4" : "h-5 w-5 border-2"
+        }`}
+      />
       {label}
     </div>
   );

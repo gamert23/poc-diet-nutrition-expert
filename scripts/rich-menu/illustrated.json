@@ -1,7 +1,7 @@
 {
   "size": { "width": 1536, "height": 893 },
   "areas": [
-    { "label": "AI Chat", "bounds": { "x": 0, "y": 0, "width": 1536, "height": 369 }, "message": "สวัสดีนักโภชนาการ AI" },
+    { "label": "AI Chat", "bounds": { "x": 0, "y": 0, "width": 1536, "height": 369 }, "message": "สวัสดี กินดี AI" },
     { "label": "Scan food", "bounds": { "x": 0, "y": 369, "width": 768, "height": 272 }, "route": "/scan" },
     { "label": "Fridge AI", "bounds": { "x": 768, "y": 369, "width": 768, "height": 272 }, "route": "/fridge" },
     { "label": "Health log", "bounds": { "x": 0, "y": 641, "width": 522, "height": 252 }, "route": "/" },

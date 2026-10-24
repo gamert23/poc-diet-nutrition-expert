@@ -109,7 +109,7 @@ export default function OnboardingPage() {
 
   const fatalError = liffError ?? profileError;
   if (fatalError) return <ErrorMessage message={fatalError} />;
-  if (loading) return <Spinner />;
+  if (loading) return <Spinner fullPage />;
 
   if (result) {
     return (

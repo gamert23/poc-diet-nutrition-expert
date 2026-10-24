@@ -36,7 +36,7 @@ async function handleEvent(event: LineEvent): Promise<void> {
     await replyMessage(event.replyToken, [
       {
         type: "text",
-        text: `ยินดีต้อนรับสู่ AI Nutritionist! เริ่มตั้งค่าเป้าหมายแคลอรีของคุณได้ที่ ${liffUrl("/")}`,
+        text: `ยินดีต้อนรับสู่ กินดี AI! เริ่มตั้งค่าเป้าหมายแคลอรีของคุณได้ที่ ${liffUrl("/")}`,
       },
     ]);
     return;
