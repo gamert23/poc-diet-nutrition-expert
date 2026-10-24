@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  background: #f3f4f6;
+  color: #111827;
+  font-family: "Noto Sans Thai", "Sukhumvit Set", system-ui, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
