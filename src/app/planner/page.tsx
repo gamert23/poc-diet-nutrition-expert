@@ -2,8 +2,10 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useLiff } from "@/components/LiffProvider";
+import { MEAL_COLORS } from "@/components/Pinto";
 import { useProfile } from "@/components/useProfile";
 import { BottomNav, Card, ErrorMessage, PageHeader, Spinner, buttonClass, secondaryButtonClass } from "@/components/ui";
+import { formatThaiDate } from "@/lib/format";
 import { MEAL_TYPE_LABELS, type MealPlan } from "@/lib/types";
 
 function groupByDate(plans: MealPlan[]): [string, MealPlan[]][] {
@@ -56,7 +58,7 @@ export default function PlannerPage() {
       <PageHeader
         title="AI จัดสำรับอาหาร"
         subtitle={`เป้าหมาย ${Math.round(Number(profile.target_calories))} kcal/วัน${
-          profile.daily_budget_thb ? ` | งบ ${Number(profile.daily_budget_thb)} บาท/วัน` : ""
+          profile.daily_budget_thb ? `, งบ ${Number(profile.daily_budget_thb)} บาท/วัน` : ""
         }`}
       />
 
@@ -74,21 +76,21 @@ export default function PlannerPage() {
 
       {plans.length === 0 ? (
         <Card>
-          <p className="text-sm text-gray-500">ยังไม่มีแผนอาหาร กดปุ่มด้านบนเพื่อให้ AI จัดเมนูให้</p>
+          <p className="text-sm text-muted">ยังไม่มีแผนอาหาร เลือกจัดเมนูวันนี้หรือ 7 วันด้านบน</p>
         </Card>
       ) : (
         <div className="space-y-4">
           {groupByDate(plans).map(([date, dayPlans]) => (
             <Card key={date}>
               <div className="mb-2 flex items-baseline justify-between">
-                <h2 className="font-semibold">{date}</h2>
-                <span className="text-xs text-gray-500">
-                  {sum(dayPlans, "estimated_calories")} kcal | ~{sum(dayPlans, "estimated_cost_thb")} บาท
+                <h2 className="font-display text-lg font-medium">{formatThaiDate(date)}</h2>
+                <span className="text-xs text-muted">
+                  {sum(dayPlans, "estimated_calories")} kcal, ราว {sum(dayPlans, "estimated_cost_thb")} บาท
                 </span>
               </div>
-              <ul className="divide-y divide-gray-100">
+              <ul className="space-y-1">
                 {dayPlans.map((plan) => (
-                  <li key={plan.id} className="py-2">
+                  <li key={plan.id} className="border-l-4 py-2 pl-3" style={{ borderLeftColor: MEAL_COLORS[plan.meal_type] }}>
                     <button
                       type="button"
                       className="flex w-full items-center justify-between text-left"
@@ -96,15 +98,15 @@ export default function PlannerPage() {
                       aria-expanded={expanded === plan.id}
                     >
                       <span>
-                        <span className="block text-xs text-gray-500">{MEAL_TYPE_LABELS[plan.meal_type]}</span>
+                        <span className="block text-xs text-muted">{MEAL_TYPE_LABELS[plan.meal_type]}</span>
                         <span className="font-medium">{plan.recipe_name}</span>
                       </span>
-                      <span className="text-sm text-gray-600">{Math.round(Number(plan.estimated_calories))} kcal</span>
+                      <span className="text-sm text-ink-soft">{Math.round(Number(plan.estimated_calories))} kcal</span>
                     </button>
                     {expanded === plan.id && (
-                      <div className="mt-2 space-y-2 rounded-xl bg-gray-50 p-3 text-sm">
-                        <p className="text-xs text-gray-500">
-                          P {Math.round(Number(plan.estimated_protein_g))} g | C {Math.round(Number(plan.estimated_carbs_g))} g | F{" "}
+                      <div className="mt-2 space-y-2 rounded-xl bg-paper p-3 text-sm">
+                        <p className="text-xs text-muted">
+                          โปรตีน {Math.round(Number(plan.estimated_protein_g))} g, คาร์บ {Math.round(Number(plan.estimated_carbs_g))} g, ไขมัน{" "}
                           {Math.round(Number(plan.estimated_fat_g))} g
                         </p>
                         <ul className="list-disc pl-5">

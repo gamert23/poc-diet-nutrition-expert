@@ -4,22 +4,22 @@ import { WARNING_MESSAGES } from "@/lib/safety";
 import type { WarningFlag } from "@/lib/types";
 
 export function Card({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return <section className={`rounded-2xl bg-white p-4 shadow-sm ${className}`}>{children}</section>;
+  return <section className={`rounded-[20px] border border-line bg-surface p-4 ${className}`}>{children}</section>;
 }
 
 export function PageHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
-    <header className="mb-4">
-      <h1 className="text-xl font-bold text-gray-900">{title}</h1>
-      {subtitle && <p className="text-sm text-gray-500">{subtitle}</p>}
+    <header className="mb-5">
+      <h1 className="font-display text-[1.75rem] leading-tight font-medium text-ink">{title}</h1>
+      {subtitle && <p className="mt-1 text-sm text-muted">{subtitle}</p>}
     </header>
   );
 }
 
 export function Spinner({ label = "กำลังโหลด..." }: { label?: string }) {
   return (
-    <div className="flex items-center justify-center gap-2 py-10 text-sm text-gray-500" role="status">
-      <span className="h-5 w-5 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent" />
+    <div className="flex items-center justify-center gap-2 py-10 text-sm text-muted" role="status">
+      <span className="h-5 w-5 animate-spin rounded-full border-2 border-pandan border-t-transparent" />
       {label}
     </div>
   );
@@ -27,7 +27,7 @@ export function Spinner({ label = "กำลังโหลด..." }: { label?: 
 
 export function ErrorMessage({ message }: { message: string }) {
   return (
-    <p className="rounded-xl bg-red-50 p-3 text-sm text-red-700" role="alert">
+    <p className="rounded-xl bg-chili-wash p-3 text-sm text-chili" role="alert">
       {message}
     </p>
   );
@@ -50,7 +50,7 @@ export function WarningList({ flags }: { flags: readonly WarningFlag[] }) {
   return (
     <ul className="space-y-1">
       {flags.map((flag) => (
-        <li key={flag} className="flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+        <li key={flag} className="flex items-center gap-2 rounded-lg bg-chili-wash px-3 py-2 text-sm font-medium text-chili">
           <WarningIcon />
           {WARNING_MESSAGES[flag]}
         </li>
@@ -73,11 +73,11 @@ export function NutrientGrid({
   if (values.sodium_mg !== undefined) items.push(["โซเดียม", `${Math.round(values.sodium_mg)} mg`]);
   if (values.sugar_g !== undefined) items.push(["น้ำตาล", `${Math.round(values.sugar_g)} g`]);
   return (
-    <dl className="grid grid-cols-3 gap-2 text-center">
+    <dl className="grid grid-cols-3 gap-x-4 gap-y-3">
       {items.map(([label, value]) => (
-        <div key={label} className="rounded-xl bg-gray-50 p-2">
-          <dt className="text-xs text-gray-500">{label}</dt>
-          <dd className="text-sm font-semibold text-gray-900">{value}</dd>
+        <div key={label} className="border-l-2 border-line pl-2.5">
+          <dt className="text-xs text-muted">{label}</dt>
+          <dd className="text-lg leading-snug font-semibold text-ink">{value}</dd>
         </div>
       ))}
     </dl>
@@ -99,7 +99,7 @@ export function Chip({
       onClick={onClick}
       aria-pressed={selected}
       className={`rounded-full border px-3 py-1.5 text-sm transition ${
-        selected ? "border-emerald-600 bg-emerald-600 text-white" : "border-gray-300 bg-white text-gray-700"
+        selected ? "border-pandan-deep bg-pandan-deep text-white" : "border-line bg-surface text-ink-soft"
       }`}
     >
       {children}
@@ -108,11 +108,11 @@ export function Chip({
 }
 
 export const buttonClass =
-  "inline-flex w-full items-center justify-center rounded-xl bg-emerald-600 px-4 py-3 font-semibold text-white disabled:opacity-50";
+  "inline-flex w-full items-center justify-center rounded-[14px] bg-pandan px-4 py-3 font-semibold text-white active:bg-pandan-deep disabled:opacity-50";
 export const secondaryButtonClass =
-  "inline-flex w-full items-center justify-center rounded-xl border border-emerald-600 px-4 py-3 font-semibold text-emerald-700 disabled:opacity-50";
+  "inline-flex w-full items-center justify-center rounded-[14px] bg-pandan-wash px-4 py-3 font-semibold text-pandan-deep disabled:opacity-50";
 export const inputClass =
-  "w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-base focus:border-emerald-500 focus:outline-none";
+  "w-full rounded-[12px] border border-line bg-surface px-3 py-2.5 text-base text-ink focus:border-pandan";
 
 const NAV_ITEMS = [
   { href: "/", label: "หน้าหลัก" },
@@ -124,14 +124,15 @@ const NAV_ITEMS = [
 
 export function BottomNav({ active }: { active: string }) {
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-10 border-t border-gray-200 bg-white pb-[env(safe-area-inset-bottom)]">
+    <nav className="fixed inset-x-0 bottom-0 z-10 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)]">
       <ul className="mx-auto flex max-w-md">
         {NAV_ITEMS.map((item) => (
           <li key={item.href} className="flex-1">
             <Link
               href={item.href}
-              className={`block py-3 text-center text-xs ${
-                active === item.href ? "font-semibold text-emerald-700" : "text-gray-500"
+              aria-current={active === item.href ? "page" : undefined}
+              className={`block border-t-2 py-3 text-center text-xs ${
+                active === item.href ? "border-pandan font-semibold text-pandan" : "border-transparent text-muted"
               }`}
             >
               {item.label}

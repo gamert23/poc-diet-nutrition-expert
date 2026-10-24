@@ -89,21 +89,21 @@ export default function ScanPage() {
       {result && (
         <Card className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700" htmlFor="food-name">
+            <label className="mb-1 block text-sm font-medium text-ink-soft" htmlFor="food-name">
               ชื่ออาหาร
             </label>
             <input id="food-name" className={inputClass} value={foodName} onChange={(event) => setFoodName(event.target.value)} />
             {result.analysis.portion_estimate && (
-              <p className="mt-1 text-xs text-gray-500">ปริมาณโดยประมาณ: {result.analysis.portion_estimate}</p>
+              <p className="mt-1 text-xs text-muted">ปริมาณโดยประมาณ: {result.analysis.portion_estimate}</p>
             )}
           </div>
           <NutrientGrid values={result.analysis} />
           <WarningList flags={result.warning_flags} />
           {result.analysis.health_advice && (
-            <p className="rounded-xl bg-emerald-50 p-3 text-sm text-emerald-800">{result.analysis.health_advice}</p>
+            <p className="rounded-xl bg-pandan-wash p-3 text-sm text-pandan">{result.analysis.health_advice}</p>
           )}
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700" htmlFor="meal-type">
+            <label className="mb-1 block text-sm font-medium text-ink-soft" htmlFor="meal-type">
               มื้อ
             </label>
             <select
@@ -122,7 +122,7 @@ export default function ScanPage() {
           <button type="button" className={buttonClass} onClick={save} disabled={saving}>
             {saving ? "กำลังบันทึก..." : "บันทึกมื้อนี้"}
           </button>
-          <p className="text-xs text-gray-400">ค่าทางโภชนาการเป็นการประมาณจาก AI อาจคลาดเคลื่อนจากค่าจริง</p>
+          <p className="text-xs text-muted">ค่าทางโภชนาการเป็นการประมาณจาก AI อาจคลาดเคลื่อนจากค่าจริง</p>
         </Card>
       )}
       <BottomNav active="/scan" />

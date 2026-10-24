@@ -237,7 +237,7 @@ export default function OnboardingPage() {
               type="checkbox"
               checked={form.daily_summary_enabled}
               onChange={(event) => update("daily_summary_enabled", event.target.checked)}
-              className="h-4 w-4 accent-emerald-600"
+              className="h-4 w-4 accent-pandan"
             />
             รับสรุปการกินรายวันทาง LINE เวลา 20:00 น.
           </label>
@@ -256,7 +256,7 @@ export default function OnboardingPage() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <span className="mb-1 block text-sm font-medium text-gray-700">{label}</span>
+      <span className="mb-1 block text-sm font-medium text-ink-soft">{label}</span>
       {children}
     </div>
   );
@@ -281,7 +281,7 @@ function NumberField({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-sm font-medium text-gray-700">{label}</span>
+      <span className="mb-1 block text-sm font-medium text-ink-soft">{label}</span>
       <input
         type="number"
         inputMode="decimal"
@@ -300,8 +300,8 @@ function NumberField({
 function Row({ label, value, strong = false }: { label: string; value: string; strong?: boolean }) {
   return (
     <div className="flex justify-between text-sm">
-      <span className="text-gray-600">{label}</span>
-      <span className={strong ? "text-lg font-bold text-emerald-700" : "font-semibold"}>{value}</span>
+      <span className="text-ink-soft">{label}</span>
+      <span className={strong ? "text-lg font-bold text-pandan" : "font-semibold"}>{value}</span>
     </div>
   );
 }

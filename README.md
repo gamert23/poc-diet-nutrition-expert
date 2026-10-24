@@ -35,6 +35,7 @@ Phase 2 items (SRD section 8) are out of scope.
    - A **LINE Login** channel with a LIFF app (size Full, scopes `openid` + `profile`), endpoint URL = your deployed root URL.
    - A **Messaging API** channel linked to the same provider. Webhook URL = `https://<host>/api/line/webhook`, with webhooks enabled.
 4. `cp .env.example .env.local` and fill it in.
+   - AI provider: to start free, use Gemini through its OpenAI-compatible endpoint. Create a key at https://aistudio.google.com/apikey and set `OPENAI_API_KEY=<gemini key>`, `OPENAI_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai`, and `OPENAI_MODEL=gemini-3.8-flash`. Switching back to OpenAI only means changing these three values.
 5. Rich menu: create a 2500x843 image with four equal columns (Dashboard, AI Scanner, Fridge AI, AI Chat), then run `npm run richmenu:setup -- path/to/image.png`.
 6. Deploy to Vercel and set the same env vars there, including `CRON_SECRET`.
 

@@ -4,8 +4,21 @@ import { requireEnv } from "./env";
 import { HttpError } from "./http";
 import { MEAL_TYPES } from "./types";
 
-const OPENAI_ENDPOINT = "https://api.openai.com/v1/chat/completions";
+// Any OpenAI-compatible chat completions API works, e.g. Gemini's free tier at
+// https://generativelanguage.googleapis.com/v1beta/openai
+const DEFAULT_BASE_URL = "https://api.openai.com/v1";
 const REQUEST_TIMEOUT_MS = 60_000;
+
+function chatCompletionsEndpoint(): string {
+  const baseUrl = (process.env.OPENAI_BASE_URL || DEFAULT_BASE_URL).replace(/\/+$/, "");
+  return `${baseUrl}/chat/completions`;
+}
+
+// Some providers wrap JSON in a markdown code fence despite instructions.
+export function stripCodeFence(content: string): string {
+  const match = content.trim().match(/^```(?:json)?\s*([\s\S]*?)\s*```$/);
+  return match ? match[1] : content;
+}
 
 const nonNegative = z.coerce.number().min(0).catch(0);
 
@@ -74,7 +87,7 @@ interface CompletionOptions {
 async function complete({ system, user, json, maxTokens = 1500 }: CompletionOptions): Promise<string> {
   let response: Response;
   try {
-    response = await fetch(OPENAI_ENDPOINT, {
+    response = await fetch(chatCompletionsEndpoint(), {
       method: "POST",
       headers: {
         Authorization: `Bearer ${requireEnv("OPENAI_API_KEY")}`,
@@ -112,7 +125,7 @@ async function completeJson<T>(schema: z.ZodType<T>, options: Omit<CompletionOpt
   const content = await complete({ ...options, json: true });
   let parsed: unknown;
   try {
-    parsed = JSON.parse(content);
+    parsed = JSON.parse(stripCodeFence(content));
   } catch {
     throw new HttpError(502, "AI response was not valid JSON.");
   }

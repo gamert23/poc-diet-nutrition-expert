@@ -147,13 +147,13 @@ export default function FridgePage() {
       <PageHeader title="ตู้เย็น AI" subtitle="สร้างเมนูสุขภาพจากวัตถุดิบที่คุณมี" />
 
       <Card className="mb-4">
-        <h2 className="mb-2 font-semibold">1. สแกนตู้เย็น</h2>
+        <h2 className="mb-2 font-display text-lg font-medium">1. สแกนตู้เย็น</h2>
         <PhotoPicker label="ถ่ายภาพตู้เย็น / วัตถุดิบ" onSelect={detect} disabled={detecting || generating} />
         {detecting && <Spinner label="AI กำลังหาวัตถุดิบ..." />}
       </Card>
 
       <Card className="mb-4 space-y-3">
-        <h2 className="font-semibold">2. เลือกวัตถุดิบ ({ingredients.length})</h2>
+        <h2 className="font-display text-lg font-medium">2. เลือกวัตถุดิบ ({ingredients.length})</h2>
         <div className="flex flex-wrap gap-2">
           {chipOptions.map((name) => (
             <Chip key={name} selected={ingredients.includes(name)} onClick={() => setIngredients(toggle(ingredients, name))}>
@@ -168,14 +168,14 @@ export default function FridgePage() {
             onChange={(event) => setCustomIngredient(event.target.value)}
             placeholder="พิมพ์วัตถุดิบเพิ่ม"
           />
-          <button type="submit" className="shrink-0 rounded-xl bg-gray-900 px-4 text-sm font-semibold text-white">
+          <button type="submit" className="shrink-0 rounded-xl bg-ink px-4 text-sm font-semibold text-white">
             เพิ่ม
           </button>
         </form>
       </Card>
 
       <Card className="mb-4 space-y-2">
-        <h2 className="font-semibold">3. อุปกรณ์ทำอาหาร</h2>
+        <h2 className="font-display text-lg font-medium">3. อุปกรณ์ทำอาหาร</h2>
         <div className="flex flex-wrap gap-2">
           {COOKING_EQUIPMENT.map((item) => (
             <Chip key={item} selected={equipment.includes(item)} onClick={() => setEquipment(toggle(equipment, item))}>
@@ -194,30 +194,30 @@ export default function FridgePage() {
       {result && (
         <Card className="space-y-4">
           <div>
-            <h2 className="text-lg font-bold">{result.recipe.recipe_name}</h2>
-            <p className="text-xs text-gray-500">
-              ใช้เวลา {Math.round(result.recipe.cooking_time_mins)} นาที | แคลอรีคงเหลือวันนี้ {result.remaining_calories} kcal
+            <h2 className="font-display text-xl font-medium">{result.recipe.recipe_name}</h2>
+            <p className="text-xs text-muted">
+              ใช้เวลา {Math.round(result.recipe.cooking_time_mins)} นาที, วันนี้เหลือ {result.remaining_calories} kcal
             </p>
           </div>
           <NutrientGrid values={result.recipe} />
           <WarningList flags={result.warning_flags} />
           <div>
             <h3 className="mb-1 text-sm font-semibold">วัตถุดิบที่ใช้</h3>
-            <p className="text-sm text-gray-700">{result.recipe.used_ingredients.join(", ")}</p>
+            <p className="text-sm text-ink-soft">{result.recipe.used_ingredients.join(", ")}</p>
             {result.recipe.missing_optional_ingredients.length > 0 && (
-              <p className="mt-1 text-xs text-gray-500">เพิ่มได้ถ้ามี: {result.recipe.missing_optional_ingredients.join(", ")}</p>
+              <p className="mt-1 text-xs text-muted">เพิ่มได้ถ้ามี: {result.recipe.missing_optional_ingredients.join(", ")}</p>
             )}
           </div>
           <div>
             <h3 className="mb-1 text-sm font-semibold">วิธีทำ</h3>
-            <ol className="list-decimal space-y-1 pl-5 text-sm text-gray-700">
+            <ol className="list-decimal space-y-1 pl-5 text-sm text-ink-soft">
               {result.recipe.instructions.map((step, index) => (
                 <li key={index}>{step}</li>
               ))}
             </ol>
           </div>
           {result.recipe.medical_safety_note && (
-            <p className="rounded-xl bg-amber-50 p-3 text-sm text-amber-800">{result.recipe.medical_safety_note}</p>
+            <p className="rounded-xl bg-turmeric-wash p-3 text-sm text-tamarind">{result.recipe.medical_safety_note}</p>
           )}
           <button type="button" className={secondaryButtonClass} onClick={logRecipe} disabled={saving}>
             {saving ? "กำลังบันทึก..." : "ทำเมนูนี้แล้ว บันทึกเป็นมื้ออาหาร"}

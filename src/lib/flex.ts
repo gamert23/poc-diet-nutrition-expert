@@ -11,13 +11,13 @@ export interface DailySummaryInput {
 }
 
 const COLORS = {
-  calories: "#16A34A",
-  over: "#DC2626",
-  protein: "#2563EB",
-  carbs: "#F59E0B",
-  fat: "#DB2777",
-  track: "#E5E7EB",
-  muted: "#6B7280",
+  calories: "#2F6B3A",
+  over: "#B8352B",
+  protein: "#3657A6",
+  carbs: "#D9961E",
+  fat: "#8A5A3B",
+  track: "#DFE5DA",
+  muted: "#5C6B60",
 };
 
 export function progressPercent(value: number, target: number): number {
@@ -38,7 +38,7 @@ function progressRow(label: string, value: number, target: number, unit: string,
         type: "box",
         layout: "horizontal",
         contents: [
-          { type: "text", text: label, size: "sm", color: "#111827", flex: 1 },
+          { type: "text", text: label, size: "sm", color: "#1F2A22", flex: 1 },
           {
             type: "text",
             text: `${Math.round(value)} / ${Math.round(target)} ${unit}`,
@@ -95,9 +95,9 @@ export function buildDailySummaryFlex(input: DailySummaryInput) {
       header: {
         type: "box",
         layout: "vertical",
-        backgroundColor: "#ECFDF5",
+        backgroundColor: "#E3EEE0",
         contents: [
-          { type: "text", text: "สรุปการกินวันนี้", weight: "bold", size: "lg", color: "#065F46" },
+          { type: "text", text: "สรุปการกินวันนี้", weight: "bold", size: "lg", color: "#22502B" },
           {
             type: "text",
             text: input.displayName ? `${input.displayName} | ${input.date}` : input.date,
