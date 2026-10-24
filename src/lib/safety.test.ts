@@ -19,6 +19,14 @@ describe("evaluateMealWarnings", () => {
     expect(evaluateMealWarnings({ sodium_mg: 2000, sugar_g: 0 }, ["diabetes"])).toEqual([]);
   });
 
+  it("recognises conditions typed in Thai", () => {
+    expect(evaluateMealWarnings({ sodium_mg: 900, sugar_g: 25 }, ["ความดันโลหิตสูง", "เบาหวาน"])).toEqual([
+      "HIGH_SODIUM_WARNING",
+      "HIGH_SUGAR_WARNING",
+    ]);
+    expect(evaluateMealWarnings({ sodium_mg: 900, sugar_g: 0 }, ["ความดันต่ำ"])).toEqual([]);
+  });
+
   it("returns both flags when both conditions are exceeded", () => {
     expect(evaluateMealWarnings({ sodium_mg: 900, sugar_g: 25 }, ["hypertension", "diabetes"])).toEqual([
       "HIGH_SODIUM_WARNING",

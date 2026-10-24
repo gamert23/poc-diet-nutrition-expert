@@ -49,6 +49,7 @@ export const POST = handleRoute(async (request: Request) => {
       conditions: profile.medical_conditions,
       allergies: profile.allergies,
       dailyBudgetThb: profile.daily_budget_thb === null ? null : Number(profile.daily_budget_thb),
+      availableIngredients: input.ingredients,
     }),
     input.days,
   );

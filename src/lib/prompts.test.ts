@@ -34,5 +34,21 @@ describe("prompt templates", () => {
     });
     expect(prompt).toContain("2026-10-24, 2026-10-25");
     expect(prompt).toContain("200 THB per day");
+    expect(prompt).not.toContain("already has at home");
+  });
+
+  it("asks the meal plan to build on ingredients the user already has", () => {
+    const prompt = mealPlanPrompt({
+      dates: ["2026-10-24"],
+      targetCalories: 1500,
+      proteinTargetG: 112.5,
+      carbsTargetG: 168.8,
+      fatTargetG: 41.7,
+      conditions: [],
+      allergies: [],
+      dailyBudgetThb: null,
+      availableIngredients: ["ไข่ไก่", "ผักบุ้ง"],
+    });
+    expect(prompt).toContain("already has at home: ไข่ไก่, ผักบุ้ง");
   });
 });

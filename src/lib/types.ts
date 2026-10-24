@@ -38,7 +38,7 @@ export interface Profile {
   protein_target_g: number;
   carbs_target_g: number;
   fat_target_g: number;
-  medical_conditions: MedicalCondition[];
+  medical_conditions: string[];
   allergies: string[];
   cooking_equipment: CookingEquipment[];
   daily_budget_thb: number | null;

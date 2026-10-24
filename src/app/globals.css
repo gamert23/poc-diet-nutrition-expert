@@ -10,7 +10,7 @@
 @import "./base.css" layer(base);
 
 @theme static {
-  --color-paper-hover: oklch(88% 0.055 155);
+  --color-paper-hover: oklch(90.5% 0.045 155);
   --color-card-muted: oklch(46% 0.035 160);
   --color-card-rule: oklch(89% 0.015 100);
   --color-track: oklch(93% 0.02 120);

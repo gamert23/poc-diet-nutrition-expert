@@ -1,13 +1,14 @@
-import {
-  COOKING_EQUIPMENT_LABELS,
-  MEDICAL_CONDITION_LABELS,
-  type CookingEquipment,
-  type MedicalCondition,
-} from "./types";
+import { conditionLabel } from "./conditions";
+import { COOKING_EQUIPMENT_LABELS, type CookingEquipment } from "./types";
 
-export function describeConditions(conditions: readonly MedicalCondition[]): string {
+export function describeConditions(conditions: readonly string[]): string {
   if (conditions.length === 0) return "none";
-  return conditions.map((condition) => `${condition} (${MEDICAL_CONDITION_LABELS[condition]})`).join(", ");
+  return conditions
+    .map((condition) => {
+      const label = conditionLabel(condition);
+      return label === condition ? condition : `${condition} (${label})`;
+    })
+    .join(", ");
 }
 
 export function describeEquipment(equipment: readonly CookingEquipment[]): string {
@@ -20,7 +21,7 @@ function describeAllergies(allergies: readonly string[]): string {
 }
 
 // SRD 6.1
-export function foodScannerPrompt(conditions: readonly MedicalCondition[]): string {
+export function foodScannerPrompt(conditions: readonly string[]): string {
   return `You are an expert clinical nutritionist specializing in Asian cuisine and dietary management for diabetes and hypertension.
 
 Task: Analyze the image of food provided. Estimate the components, portion size, and nutritional values.
@@ -62,7 +63,7 @@ Output JSON Format:
 export interface RecipePromptInput {
   ingredients: readonly string[];
   remainingCalories: number;
-  conditions: readonly MedicalCondition[];
+  conditions: readonly string[];
   equipment: readonly CookingEquipment[];
   allergies: readonly string[];
 }
@@ -108,13 +109,17 @@ export interface MealPlanPromptInput {
   proteinTargetG: number;
   carbsTargetG: number;
   fatTargetG: number;
-  conditions: readonly MedicalCondition[];
+  conditions: readonly string[];
   allergies: readonly string[];
   dailyBudgetThb: number | null;
+  availableIngredients?: readonly string[];
 }
 
 export function mealPlanPrompt(input: MealPlanPromptInput): string {
   const budget = input.dailyBudgetThb ? `${input.dailyBudgetThb} THB per day for all meals combined` : "no fixed budget";
+  const pantry = input.availableIngredients?.length
+    ? `\n- Ingredients the user already has at home: ${input.availableIngredients.join(", ")}. Build the meals primarily from these, use up as many of them as fit the targets, and only add common staples (rice, seasonings, vegetables) where a dish needs them. Count already-owned ingredients as zero cost.`
+    : "";
   return `You are a Thai clinical nutritionist planning affordable everyday Thai meals.
 
 Task: Create a meal plan with exactly 4 meals (breakfast, lunch, dinner, snack) for each of these dates: ${input.dates.join(", ")}.
@@ -124,7 +129,7 @@ Constraints:
 - Budget: ${budget}. Estimate cost in THB using typical Bangkok market prices.
 - Medical Conditions: ${describeConditions(input.conditions)}. Control seasoning: for hypertension keep each meal under 600 mg sodium (limit fish sauce, soy sauce, salt, MSG); for diabetes keep each meal under 10 g sugar (no added sugar, prefer brown rice).
 - Food Allergies (never use): ${describeAllergies(input.allergies)}.
-- Vary dishes across days. Write names, ingredients, and instructions in Thai.
+- Vary dishes across days. Write names, ingredients, and instructions in Thai.${pantry}
 - Return strictly a JSON object without markdown formatting.
 
 Output JSON Format:
@@ -147,7 +152,7 @@ Output JSON Format:
 }
 
 export interface ChatPromptInput {
-  conditions: readonly MedicalCondition[];
+  conditions: readonly string[];
   allergies: readonly string[];
   targetCalories: number | null;
   consumedCalories: number | null;

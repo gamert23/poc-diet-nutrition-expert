@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { IngredientChips, useIngredientSelection } from "@/components/IngredientPicker";
 import { useLiff } from "@/components/LiffProvider";
+import { PhotoPicker } from "@/components/PhotoPicker";
 import { useProfile } from "@/components/useProfile";
 import { BottomNav, ErrorMessage, PageHeader, Spinner, buttonClass, secondaryButtonClass } from "@/components/ui";
 import { formatThaiDate } from "@/lib/format";
@@ -24,6 +26,8 @@ export default function PlannerPage() {
   const [generatingDays, setGeneratingDays] = useState<1 | 7 | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [useFridge, setUseFridge] = useState(false);
+  const fridge = useIngredientSelection(setError);
 
   const load = useCallback(() => {
     apiFetch<{ plans: MealPlan[] }>("/api/meal-plans")
@@ -39,7 +43,8 @@ export default function PlannerPage() {
     setGeneratingDays(days);
     setError(null);
     try {
-      await apiFetch("/api/meal-plans", { method: "POST", body: JSON.stringify({ days }) });
+      const ingredients = useFridge ? fridge.selected : [];
+      await apiFetch("/api/meal-plans", { method: "POST", body: JSON.stringify({ days, ingredients }) });
       load();
     } catch (generateError) {
       setError((generateError as Error).message);
@@ -60,6 +65,34 @@ export default function PlannerPage() {
           profile.daily_budget_thb ? `, งบ ${Number(profile.daily_budget_thb)} บาท/วัน` : ""
         }`}
       />
+
+      <section className="mb-6 space-y-4" aria-label="วัตถุดิบจากตู้เย็น">
+        <label className="flex min-h-11 items-center gap-3 font-bold">
+          <input
+            type="checkbox"
+            checked={useFridge}
+            onChange={(event) => setUseFridge(event.target.checked)}
+            className="h-5 w-5 shrink-0 accent-accent"
+          />
+          ใช้วัตถุดิบจากตู้เย็น
+        </label>
+        {useFridge && (
+          <>
+            <PhotoPicker
+              label="ถ่ายภาพตู้เย็น / วัตถุดิบ"
+              onSelect={fridge.detect}
+              disabled={fridge.detecting || generatingDays !== null}
+            />
+            {fridge.detecting && <Spinner label="AI กำลังหาวัตถุดิบ..." />}
+            <IngredientChips options={fridge.options} selected={fridge.selected} onToggle={fridge.toggle} onAdd={fridge.add} />
+            <p className="text-sm text-muted">
+              {fridge.selected.length > 0
+                ? `เลือกแล้ว ${fridge.selected.length} อย่าง AI จะจัดเมนูโดยใช้ของเหล่านี้เป็นหลัก`
+                : "ยังไม่ได้เลือกวัตถุดิบ AI จะจัดเมนูแบบทั่วไป"}
+            </p>
+          </>
+        )}
+      </section>
 
       <div className="mb-8 grid grid-cols-2 gap-3">
         <button type="button" className={buttonClass} onClick={() => generate(1)} disabled={generatingDays !== null}>

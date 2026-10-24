@@ -21,8 +21,13 @@ describe("profileInputSchema", () => {
     expect(parsed.daily_budget_thb).toBeNull();
   });
 
-  it("rejects unknown medical conditions", () => {
-    expect(profileInputSchema.safeParse({ ...validProfile, medical_conditions: ["cancer"] }).success).toBe(false);
+  it("accepts free-text medical conditions and trims them", () => {
+    const parsed = profileInputSchema.parse({ ...validProfile, medical_conditions: [" โรคไต ", "ความดันสูง"] });
+    expect(parsed.medical_conditions).toEqual(["โรคไต", "ความดันสูง"]);
+  });
+
+  it("rejects empty medical condition entries", () => {
+    expect(profileInputSchema.safeParse({ ...validProfile, medical_conditions: ["  "] }).success).toBe(false);
   });
 
   it("rejects implausible body measurements", () => {
@@ -46,5 +51,10 @@ describe("mealPlanRequestSchema", () => {
   it("only allows 1 or 7 days", () => {
     expect(mealPlanRequestSchema.safeParse({ days: 7 }).success).toBe(true);
     expect(mealPlanRequestSchema.safeParse({ days: 3 }).success).toBe(false);
+  });
+
+  it("defaults ingredients to an empty list and trims them", () => {
+    expect(mealPlanRequestSchema.parse({ days: 1 }).ingredients).toEqual([]);
+    expect(mealPlanRequestSchema.parse({ days: 1, ingredients: [" ไข่ไก่ "] }).ingredients).toEqual(["ไข่ไก่"]);
   });
 });

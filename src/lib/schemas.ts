@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ACTIVITY_LEVELS, COOKING_EQUIPMENT, GENDERS, MEAL_TYPES, MEDICAL_CONDITIONS } from "./types";
+import { ACTIVITY_LEVELS, COOKING_EQUIPMENT, GENDERS, MEAL_TYPES } from "./types";
 
 const shortText = z.string().trim().min(1).max(100);
 
@@ -11,7 +11,7 @@ export const profileInputSchema = z
     current_weight_kg: z.coerce.number().min(25).max(350),
     target_weight_kg: z.coerce.number().min(25).max(350),
     activity_level: z.enum(ACTIVITY_LEVELS),
-    medical_conditions: z.array(z.enum(MEDICAL_CONDITIONS)).default([]),
+    medical_conditions: z.array(shortText).max(20).default([]),
     allergies: z.array(shortText).max(20).default([]),
     cooking_equipment: z.array(z.enum(COOKING_EQUIPMENT)).default([]),
     daily_budget_thb: z.coerce.number().min(0).max(100000).nullable().default(null),
@@ -47,4 +47,5 @@ export const recipeRequestSchema = z.object({
 export const mealPlanRequestSchema = z.object({
   days: z.union([z.literal(1), z.literal(7)]),
   start_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  ingredients: z.array(shortText).max(30).default([]),
 });

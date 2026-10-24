@@ -1,33 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState } from "react";
+import { IngredientChips, useIngredientSelection } from "@/components/IngredientPicker";
 import { useLiff } from "@/components/LiffProvider";
 import { PhotoPicker } from "@/components/PhotoPicker";
 import { useProfile } from "@/components/useProfile";
-import { BottomNav, Card, Chip, ErrorMessage, NutrientGrid, PageHeader, Spinner, WarningList, buttonClass, cardSecondaryButtonClass, inputClass, secondaryButtonClass } from "@/components/ui";
-import { compressImage, imageFormData } from "@/lib/image-client";
+import { BottomNav, Card, Chip, ErrorMessage, NutrientGrid, PageHeader, Spinner, WarningList, buttonClass, cardSecondaryButtonClass } from "@/components/ui";
 import { suggestMealType } from "@/lib/meal-time";
 import { COOKING_EQUIPMENT, COOKING_EQUIPMENT_LABELS, type CookingEquipment, type NutrientValues, type WarningFlag } from "@/lib/types";
-
-const QUICK_INGREDIENTS = [
-  "ไข่ไก่",
-  "อกไก่",
-  "หมูสับ",
-  "ปลา",
-  "กุ้ง",
-  "เต้าหู้",
-  "ข้าวกล้อง",
-  "เส้นบุก",
-  "ผักกาดขาว",
-  "บรอกโคลี",
-  "แครอท",
-  "มะเขือเทศ",
-  "เห็ด",
-  "ผักบุ้ง",
-  "หอมใหญ่",
-  "กระเทียม",
-];
 
 interface RecipeResponse {
   recipe: NutrientValues & {
@@ -50,50 +31,16 @@ export default function FridgePage() {
   const router = useRouter();
   const { apiFetch, error: liffError } = useLiff();
   const { profile, loading, error: profileError } = useProfile();
-  const [ingredients, setIngredients] = useState<string[]>([]);
-  const [extraIngredients, setExtraIngredients] = useState<string[]>([]);
-  const [customIngredient, setCustomIngredient] = useState("");
   const [equipment, setEquipment] = useState<CookingEquipment[]>([]);
-  const [detecting, setDetecting] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [saving, setSaving] = useState(false);
   const [result, setResult] = useState<RecipeResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { selected: ingredients, options, detecting, add, toggle: toggleIngredient, detect } = useIngredientSelection(setError);
 
   useEffect(() => {
     if (profile) setEquipment(profile.cooking_equipment);
   }, [profile]);
-
-  const chipOptions = [...QUICK_INGREDIENTS, ...extraIngredients.filter((item) => !QUICK_INGREDIENTS.includes(item))];
-
-  function addIngredients(names: string[]) {
-    const cleaned = names.map((name) => name.trim()).filter(Boolean);
-    setExtraIngredients((current) => [...new Set([...current, ...cleaned])]);
-    setIngredients((current) => [...new Set([...current, ...cleaned])]);
-  }
-
-  async function detect(file: File) {
-    setDetecting(true);
-    setError(null);
-    try {
-      const { ingredients: detected } = await apiFetch<{ ingredients: string[] }>("/api/fridge/ingredients", {
-        method: "POST",
-        body: imageFormData(await compressImage(file)),
-      });
-      if (detected.length === 0) setError("ไม่พบวัตถุดิบในภาพ ลองเลือกจากรายการด้านล่างแทน");
-      addIngredients(detected);
-    } catch (detectError) {
-      setError((detectError as Error).message);
-    } finally {
-      setDetecting(false);
-    }
-  }
-
-  function addCustom(event: FormEvent) {
-    event.preventDefault();
-    addIngredients(customIngredient.split(","));
-    setCustomIngredient("");
-  }
 
   async function generate() {
     setGenerating(true);
@@ -157,25 +104,7 @@ export default function FridgePage() {
           <h2 className="text-xl">
             2. เลือกวัตถุดิบ <span className="font-body tabular-nums">({ingredients.length})</span>
           </h2>
-          <div className="flex flex-wrap gap-2">
-            {chipOptions.map((name) => (
-              <Chip key={name} selected={ingredients.includes(name)} onClick={() => setIngredients(toggle(ingredients, name))}>
-                {name}
-              </Chip>
-            ))}
-          </div>
-          <form onSubmit={addCustom} className="flex gap-2">
-            <input
-              className={`${inputClass} min-w-0`}
-              value={customIngredient}
-              onChange={(event) => setCustomIngredient(event.target.value)}
-              placeholder="พิมพ์วัตถุดิบเพิ่ม"
-              aria-label="พิมพ์วัตถุดิบเพิ่ม"
-            />
-            <button type="submit" className={`${secondaryButtonClass} w-auto! shrink-0`}>
-              เพิ่ม
-            </button>
-          </form>
+          <IngredientChips options={options} selected={ingredients} onToggle={toggleIngredient} onAdd={add} />
         </li>
 
         <li className="space-y-4 pt-8">

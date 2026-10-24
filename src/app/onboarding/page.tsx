@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useState, type FormEvent } from "react";
 import { useLiff } from "@/components/LiffProvider";
+import { conditionLabel } from "@/lib/conditions";
 import { SheetSelect } from "@/components/SheetSelect";
 import { useProfile } from "@/components/useProfile";
 import { BottomNav, Card, Chip, ErrorMessage, PageHeader, Spinner, buttonClass, inputClass } from "@/components/ui";
@@ -11,12 +12,9 @@ import {
   ACTIVITY_LEVEL_LABELS,
   COOKING_EQUIPMENT,
   COOKING_EQUIPMENT_LABELS,
-  MEDICAL_CONDITIONS,
-  MEDICAL_CONDITION_LABELS,
   type ActivityLevel,
   type CookingEquipment,
   type Gender,
-  type MedicalCondition,
   type Profile,
 } from "@/lib/types";
 
@@ -27,7 +25,7 @@ interface FormState {
   current_weight_kg: string;
   target_weight_kg: string;
   activity_level: ActivityLevel;
-  medical_conditions: MedicalCondition[];
+  medical_conditions: string;
   allergies: string;
   cooking_equipment: CookingEquipment[];
   daily_budget_thb: string;
@@ -41,7 +39,7 @@ const EMPTY_FORM: FormState = {
   current_weight_kg: "",
   target_weight_kg: "",
   activity_level: "sedentary",
-  medical_conditions: [],
+  medical_conditions: "",
   allergies: "",
   cooking_equipment: [],
   daily_budget_thb: "",
@@ -56,7 +54,7 @@ function formFromProfile(profile: Profile): FormState {
     current_weight_kg: String(Number(profile.current_weight_kg)),
     target_weight_kg: String(Number(profile.target_weight_kg)),
     activity_level: profile.activity_level,
-    medical_conditions: profile.medical_conditions,
+    medical_conditions: profile.medical_conditions.map(conditionLabel).join(", "),
     allergies: profile.allergies.join(", "),
     cooking_equipment: profile.cooking_equipment,
     daily_budget_thb: profile.daily_budget_thb === null ? "" : String(Number(profile.daily_budget_thb)),
@@ -96,10 +94,8 @@ export default function OnboardingPage() {
           height_cm: Number(form.height_cm),
           current_weight_kg: Number(form.current_weight_kg),
           target_weight_kg: Number(form.target_weight_kg),
-          allergies: form.allergies
-            .split(/[,\n]/)
-            .map((item) => item.trim())
-            .filter(Boolean),
+          medical_conditions: splitList(form.medical_conditions),
+          allergies: splitList(form.allergies),
           daily_budget_thb: form.daily_budget_thb === "" ? null : Number(form.daily_budget_thb),
         }),
       });
@@ -204,19 +200,19 @@ export default function OnboardingPage() {
           </fieldset>
 
           <fieldset className="space-y-5 py-8">
-            <FieldGroup label="โรคประจำตัว">
-              <div className="flex flex-wrap gap-2">
-                {MEDICAL_CONDITIONS.map((condition) => (
-                  <Chip
-                    key={condition}
-                    selected={form.medical_conditions.includes(condition)}
-                    onClick={() => update("medical_conditions", toggle(form.medical_conditions, condition))}
-                  >
-                    {MEDICAL_CONDITION_LABELS[condition]}
-                  </Chip>
-                ))}
-              </div>
-            </FieldGroup>
+            <label className="block">
+              <FieldLabel>โรคประจำตัว (คั่นด้วยจุลภาค)</FieldLabel>
+              <input
+                className={inputClass}
+                value={form.medical_conditions}
+                onChange={(event) => update("medical_conditions", event.target.value)}
+                placeholder="เช่น ความดันโลหิตสูง, เบาหวาน"
+                aria-describedby="medical-conditions-hint"
+              />
+              <span id="medical-conditions-hint" className="mt-1.5 block text-sm text-muted">
+                ระบบเตือนโซเดียมและน้ำตาลอัตโนมัติเมื่อระบุความดันโลหิตสูงหรือเบาหวาน โรคอื่น AI จะนำไปพิจารณาตอนแนะนำเมนู
+              </span>
+            </label>
             <label className="block">
               <FieldLabel>ประวัติแพ้อาหาร (คั่นด้วยจุลภาค)</FieldLabel>
               <input
@@ -270,6 +266,13 @@ export default function OnboardingPage() {
       {profile && <BottomNav active="/onboarding" />}
     </>
   );
+}
+
+function splitList(value: string): string[] {
+  return value
+    .split(/[,\n]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
 }
 
 function segmentClass(selected: boolean): string {
