@@ -1,7 +1,8 @@
-// Creates the FR-5.1 rich menu (Dashboard, AI Scanner, Fridge AI, AI Chat) and sets it
-// as the default for all users.
-// Usage: node --env-file=.env.local scripts/setup-rich-menu.mjs path/to/rich-menu.png
-// The image must be 2500x843 px (PNG or JPEG, <= 1 MB), split into 4 equal columns.
+// Creates the FR-5.1 rich menu (Dashboard, AI Scanner, Fridge AI, AI Chat), sets it as
+// the default for all users, then deletes earlier menus this script created.
+// Usage: npm run richmenu:setup -- scripts/rich-menu/rich-menu.png
+// The image must be 2500x843 px (PNG or JPEG, <= 1 MB) laid out like
+// scripts/rich-menu/menu.html: scan on the left half, three stacked tiers on the right.
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
@@ -16,26 +17,21 @@ if (!token || !liffId || !imagePath) {
 
 const WIDTH = 2500;
 const HEIGHT = 843;
-const COLUMN = Math.floor(WIDTH / 4);
+const HALF = WIDTH / 2;
+const TIER = Math.floor(HEIGHT / 3);
+const MENU_NAME = "AI Nutritionist main menu";
 const liffUrl = (route) => `https://liff.line.me/${liffId}${route}`;
 
-const actions = [
-  { type: "uri", label: "Dashboard", uri: liffUrl("/") },
-  { type: "uri", label: "AI Scanner", uri: liffUrl("/scan") },
-  { type: "uri", label: "Fridge AI", uri: liffUrl("/fridge") },
-  { type: "message", label: "AI Chat", text: "สวัสดีนักโภชนาการ AI" },
+const tier = (index) => ({ x: HALF, y: index * TIER, width: HALF, height: index === 2 ? HEIGHT - 2 * TIER : TIER });
+
+const areas = [
+  { bounds: { x: 0, y: 0, width: HALF, height: HEIGHT }, action: { type: "uri", label: "AI Scanner", uri: liffUrl("/scan") } },
+  { bounds: tier(0), action: { type: "uri", label: "Dashboard", uri: liffUrl("/") } },
+  { bounds: tier(1), action: { type: "uri", label: "Fridge AI", uri: liffUrl("/fridge") } },
+  { bounds: tier(2), action: { type: "message", label: "AI Chat", text: "สวัสดีนักโภชนาการ AI" } },
 ];
 
-const richMenu = {
-  size: { width: WIDTH, height: HEIGHT },
-  selected: true,
-  name: "AI Nutritionist main menu",
-  chatBarText: "เมนู",
-  areas: actions.map((action, index) => ({
-    bounds: { x: index * COLUMN, y: 0, width: index === 3 ? WIDTH - 3 * COLUMN : COLUMN, height: HEIGHT },
-    action,
-  })),
-};
+const richMenu = { size: { width: WIDTH, height: HEIGHT }, selected: true, name: MENU_NAME, chatBarText: "เมนู", areas };
 
 async function call(url, init) {
   const response = await fetch(url, { ...init, headers: { Authorization: `Bearer ${token}`, ...init.headers } });
@@ -61,3 +57,11 @@ console.log("Uploaded rich menu image");
 
 await call(`https://api.line.me/v2/bot/user/all/richmenu/${richMenuId}`, { method: "POST", headers: {} });
 console.log("Set as default rich menu");
+
+// Only menus created by this script are removed; anything else on the account stays.
+const { richmenus = [] } = await call("https://api.line.me/v2/bot/richmenu/list", { method: "GET", headers: {} });
+for (const menu of richmenus) {
+  if (menu.name !== MENU_NAME || menu.richMenuId === richMenuId) continue;
+  await call(`https://api.line.me/v2/bot/richmenu/${menu.richMenuId}`, { method: "DELETE", headers: {} });
+  console.log(`Deleted previous rich menu ${menu.richMenuId}`);
+}

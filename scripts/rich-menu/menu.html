@@ -1,0 +1,50 @@
+<!doctype html>
+<!-- Source for the 2500x843 rich menu image. Render it at that exact viewport
+     (see README) and pass the PNG to `npm run richmenu:setup`. Tap areas in
+     scripts/setup-rich-menu.mjs follow this layout: scan on the left half,
+     three tiers on the right. -->
+<html lang="th"><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600&display=block" rel="stylesheet">
+<style>
+  :root {
+    --peach: oklch(84% 0.095 56);
+    --peach-ink: oklch(32% 0.07 40);
+    --tier-1: oklch(99.4% 0.006 85);
+    --tier-2: oklch(95.5% 0.03 155);
+    --tier-3: oklch(91% 0.045 155);
+    --ink: oklch(29% 0.06 160);
+    --muted: oklch(47% 0.04 160);
+    --rule: oklch(29% 0.06 160 / 0.14);
+  }
+  * { margin: 0; box-sizing: border-box; }
+  body { width: 2500px; height: 843px; display: grid; grid-template-columns: 1250px 1250px; font-family: "Kanit", sans-serif; color: var(--ink); overflow: hidden; }
+  .scan { background: var(--peach); color: var(--peach-ink); padding: 76px 88px; display: flex; flex-direction: column; justify-content: space-between; }
+  .scan svg { width: 210px; height: 210px; }
+  .scan h1 { font-size: 172px; font-weight: 600; line-height: 0.95; letter-spacing: -0.01em; }
+  .scan p { font-size: 64px; font-weight: 400; margin-top: 18px; }
+  .tiers { display: grid; grid-template-rows: repeat(3, 1fr); }
+  .tier { display: flex; align-items: center; justify-content: space-between; padding: 0 96px 0 84px; border-left: 6px solid var(--rule); }
+  .tier + .tier { border-top: 6px solid var(--rule); }
+  .tier:nth-child(1) { background: var(--tier-1); }
+  .tier:nth-child(2) { background: var(--tier-2); }
+  .tier:nth-child(3) { background: var(--tier-3); }
+  .tier span { font-size: 100px; font-weight: 600; line-height: 1; }
+  .tier svg { width: 118px; height: 118px; color: var(--muted); }
+</style></head>
+<body>
+  <section class="scan">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/></svg>
+    <div>
+      <h1>สแกนอาหาร</h1>
+      <p>ถ่ายรูปมื้อนี้ ดูแคลอรีทันที</p>
+    </div>
+  </section>
+  <section class="tiers">
+    <div class="tier"><span>หน้าหลัก</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg></div>
+    <div class="tier"><span>ตู้เย็น AI</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2.5" width="14" height="19" rx="2"/><path d="M5 9.5h14"/><path d="M8.5 5.5v2"/><path d="M8.5 12.5v3"/></svg></div>
+    <div class="tier"><span>ถาม AI</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.1A8 8 0 1 1 20 12z"/><path d="M8.5 11h7"/><path d="M8.5 14h4"/></svg></div>
+  </section>
+</body></html>
