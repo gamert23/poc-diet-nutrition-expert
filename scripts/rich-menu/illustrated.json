@@ -1,0 +1,11 @@
+{
+  "size": { "width": 1536, "height": 893 },
+  "areas": [
+    { "label": "AI Chat", "bounds": { "x": 0, "y": 0, "width": 1536, "height": 369 }, "message": "สวัสดีนักโภชนาการ AI" },
+    { "label": "Scan food", "bounds": { "x": 0, "y": 369, "width": 768, "height": 272 }, "route": "/scan" },
+    { "label": "Fridge AI", "bounds": { "x": 768, "y": 369, "width": 768, "height": 272 }, "route": "/fridge" },
+    { "label": "Health log", "bounds": { "x": 0, "y": 641, "width": 522, "height": 252 }, "route": "/" },
+    { "label": "AI meal plan", "bounds": { "x": 522, "y": 641, "width": 492, "height": 252 }, "route": "/planner" },
+    { "label": "Settings", "bounds": { "x": 1014, "y": 641, "width": 522, "height": 252 }, "route": "/onboarding" }
+  ]
+}
